@@ -45,13 +45,13 @@ Component({
             path: file.path
           });
 
-          api.uploadFile(file.path).then(function(data) {
-            files[materialType].url = data.url;
+          api.uploadFile(file.path, 'MATERIAL').then(function(data) {
+            files[materialType].url = data.fileUrl;
             files[materialType].progress = 100;
             that.setData({ files: files });
             that.triggerEvent('uploaddone', {
               materialType: materialType,
-              fileUrl: data.url,
+              fileUrl: data.fileUrl,
               fileName: file.name
             });
           }).catch(function(err) {

@@ -15,7 +15,7 @@ Page({
   onShow() {
     var that = this;
     api.getCertificateTypes().then(function(data) {
-      that.setData({ certTypes: data.items || [] });
+      that.setData({ certTypes: data.items || data.records || [] });
     }).catch(function() {});
   },
 
@@ -54,9 +54,9 @@ Page({
 
         that.setData({ attachmentFile: { name: file.name, path: file.path, progress: 0 } });
 
-        api.uploadFile(file.path).then(function(data) {
+        api.uploadFile(file.path, 'CERTIFICATE').then(function(data) {
           that.setData({
-            attachmentFile: { name: file.name, url: data.url, progress: 100 }
+            attachmentFile: { name: file.name, url: data.fileUrl, progress: 100 }
           });
           that.checkSubmit();
         }).catch(function() {

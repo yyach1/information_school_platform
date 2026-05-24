@@ -1,5 +1,20 @@
 var api = require('../../../utils/api');
 
+var CERT_TYPE_LABELS = {
+  ENROLLMENT: '在学证明',
+  LEAVE: '请假申请',
+  SEAL: '盖章申请',
+  PARTY: '党员证明',
+  TRANSCRIPT: '成绩单证明'
+};
+
+var STATUS_LABELS = {
+  PENDING: '待审核',
+  APPROVED: '已通过',
+  RETURNED: '已退回',
+  ISSUED: '已发放'
+};
+
 Page({
   data: {
     list: [],
@@ -37,11 +52,17 @@ Page({
     if (this.data.activeType) params.certType = this.data.activeType;
 
     api.getCertificates(params).then(function(data) {
-      that.setData({ list: data.items || [], loading: false });
+      var list = data.items || data.records || [];
+      list.forEach(function(item) {
+        item.certTypeLabel = CERT_TYPE_LABELS[item.certType] || item.certType;
+        item.statusLabel = STATUS_LABELS[item.status] || item.status;
+      });
+      that.setData({ list: list, loading: false });
     }).catch(function() {
       that.setData({ loading: false });
     });
   },
+
 
   onStatusFilter(e) {
     var idx = e.detail.value;

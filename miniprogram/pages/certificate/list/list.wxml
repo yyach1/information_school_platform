@@ -18,7 +18,7 @@
       </text>
     </view>
     <view class="cert-meta">
-      <text class="cert-type">{{item.certType}}</text>
+      <text class="cert-type">{{item.certTypeLabel || item.certType}}</text>
       <text class="cert-date">{{item.applyTime}}</text>
     </view>
     <view class="cert-action" wx:if="{{item.status === 'ISSUED'}}">

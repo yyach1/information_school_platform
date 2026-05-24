@@ -7,7 +7,7 @@
       </text>
     </view>
 
-    <view class="info-row"><text class="info-label">证明类型</text><text class="info-value">{{detail.certType}}</text></view>
+    <view class="info-row"><text class="info-label">证明类型</text><text class="info-value">{{detail.certTypeLabel || detail.certType}}</text></view>
     <view class="info-row"><text class="info-label">申请人</text><text class="info-value">{{detail.studentName}} {{detail.studentNo}}</text></view>
     <view class="info-row"><text class="info-label">班级</text><text class="info-value">{{detail.className}}</text></view>
     <view class="info-row"><text class="info-label">申请时间</text><text class="info-value">{{detail.applyTime}}</text></view>

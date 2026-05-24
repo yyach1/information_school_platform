@@ -16,7 +16,7 @@ Page({
     this.setData({ loading: true });
 
     api.getProcesses({ status: 'ENABLED', page: 1, size: 50 }).then(function(data) {
-      that.setData({ availableProcesses: data.items || [] });
+      that.setData({ availableProcesses: data.items || data.records || [] });
     }).catch(function() {});
 
     // 加载已参与的流程 - 先请求可用流程，逐个查询进度

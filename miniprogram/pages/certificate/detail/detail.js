@@ -1,5 +1,13 @@
 var api = require('../../../utils/api');
 
+var CERT_TYPE_LABELS = {
+  ENROLLMENT: '在学证明',
+  LEAVE: '请假申请',
+  SEAL: '盖章申请',
+  PARTY: '党员证明',
+  TRANSCRIPT: '成绩单证明'
+};
+
 Page({
   data: {
     id: '',
@@ -15,6 +23,7 @@ Page({
     var that = this;
     wx.showLoading({ title: '加载中...' });
     api.getCertificateDetail(that.data.id).then(function(data) {
+      data.certTypeLabel = CERT_TYPE_LABELS[data.certType] || data.certType;
       that.setData({ detail: data });
       wx.hideLoading();
     }).catch(function(err) {

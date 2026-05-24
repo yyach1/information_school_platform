@@ -11,7 +11,7 @@ App({
   },
 
   globalData: {
-    baseUrl: 'https://your-server/api/v1',
+    baseUrl: 'https://your-server/api',
     userInfo: null
   }
 });

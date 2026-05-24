@@ -12,7 +12,7 @@ function request(method, url, data) {
         'Authorization': token ? `Bearer ${token}` : ''
       },
       success(res) {
-        if (res.statusCode === 200 && res.data.code === '0') {
+        if (res.statusCode === 200 && res.data.code === 200) {
           resolve(res.data.data);
         } else if (res.statusCode === 401) {
           wx.removeStorageSync('token');
@@ -56,20 +56,27 @@ module.exports = {
   downloadCertificate: (id) =>
     request('GET', `/student/certificates/${id}/download`),
 
-  // === 文件上传 ===
-  uploadFile: (filePath) => {
+  // === 文件上传（成员D提供）===
+  // relatedType: 'MATERIAL' | 'CERTIFICATE' | 'OTHER'
+  // relatedId: 业务记录ID（如 certificate.id）
+  uploadFile: (filePath, relatedType, relatedId) => {
     return new Promise((resolve, reject) => {
       const token = wx.getStorageSync('token');
+      const formData = {};
+      if (relatedType) formData.relatedType = relatedType;
+      if (relatedId) formData.relatedId = String(relatedId);
+
       wx.uploadFile({
         url: BASE_URL + '/files/upload',
         filePath,
         name: 'file',
+        formData: Object.keys(formData).length ? formData : undefined,
         header: {
           'Authorization': token ? `Bearer ${token}` : ''
         },
         success(res) {
           const data = JSON.parse(res.data);
-          if (data.code === '0') {
+          if (data.code === 200) {
             resolve(data.data);
           } else {
             reject(new Error(data.message || '上传失败'));
