@@ -45,6 +45,17 @@
 │   └── utils/
 │       ├── api.js            # API 请求封装
 │       └── validator.js      # 文件校验工具
+├── member-c/                  # 成员C：后端 + 管理端前端
+│   ├── pom.xml               # Spring Boot 3.2 Maven 配置
+│   ├── src/main/java/        # Java 源码（实体/服务/控制器/安全）
+│   ├── src/main/resources/   # 配置文件
+│   ├── admin-web/            # Vue 3 管理端（Element Plus）
+│   │   ├── src/api/          # API 封装
+│   │   ├── src/views/        # 登录/首页/用户管理/学生进度/系统日志
+│   │   ├── src/router/       # 路由 + 角色守卫
+│   │   └── src/stores/       # Pinia 状态管理
+│   ├── db/                   # 数据库 SQL（DDL + 种子数据）
+│   └── nginx-isp.conf        # Nginx 反向代理配置
 └── README.md
 ```
 
@@ -74,6 +85,49 @@
 - [ ] 对接成员C的登录认证
 - [ ] 后端电子证明接口实现（可由成员B或其他成员负责）
 
+## 成员C 当前进度
+
+### 已完成
+
+- **数据库设计** — `user`、`student`、`teacher`、`notification`、`operation_log` 五张核心表，含约束、索引、外键
+- **后端服务（Spring Boot 3.2）** — 62 个 Java 文件，覆盖以下模块：
+
+| 模块 | 路径 | 说明 |
+|------|------|------|
+| 认证 | `/api/auth` | 登录(JWT)、获取当前用户、登出 |
+| 用户管理 | `/api/users` | ADMIN CRUD、角色关联（student/teacher）、密码重置 |
+| 通知 | `/api/notifications` | 分页列表、未读数(NOTICE/TODO)、标记已读(归属校验)、创建 |
+| 操作日志 | `/api/logs` | ADMIN 分页查询、按类型/结果/时间范围/关键字筛选 |
+| 学生进度 | `/api/admin/students/progress` | TEACHER+ADMIN 按年级/班级/政治面貌筛选 |
+
+- **安全机制** — Spring Security + JWT 无状态认证、URL 级 + `@PreAuthorize` 方法级 RBAC、STUDENT 数据隔离
+- **审计日志** — `@OpLog` 注解 + AOP 切面自动记录关键操作，异步写入
+- **管理端前端（Vue 3 + Element Plus）** — 16 个文件，含登录页、首页、用户管理、学生进度总览、系统日志查看
+- **路由守卫** — 基于角色自动隐藏菜单项，未授权访问重定向首页
+- **种子数据** — 默认 ADMIN 账号 `admin / admin123`，启动时自动修正密码哈希
+- **Nginx 配置** — 反向代理 `/api/` 到后端、`/admin/` 到前端静态文件
+
+### 本地运行
+
+```bash
+# 后端（需要 JDK 17 + Maven）
+cd member-c
+mvn spring-boot:run
+
+# 管理端前端
+cd member-c/admin-web
+npm install
+npm run dev          # → http://localhost:3000
+```
+
+### 待完成
+
+- [ ] 学生进度总览关联流程审核/材料表（待成员A提供接口）
+- [ ] 通知管理页面（后端 API 已就绪）
+- [ ] 文件上传模块（占位接口已写，待成员D实现）
+- [ ] 与成员A联调材料审核通知联动
+- [ ] Kingbase 生产环境部署
+
 ## 小程序本地运行
 
 1. 下载 [微信开发者工具](https://developers.weixin.qq.com/miniprogram/dev/devtools/download.html)
@@ -84,6 +138,7 @@
 
 ## 接口基准
 
-- Base URL: `/api/v1`
-- 认证: `Authorization: Bearer <JWT>`（由成员C提供）
-- 统一响应格式: `{ "code": "0", "message": "OK", "data": {...}, "traceId": "..." }`
+- Base URL: `/api`
+- 认证: `Authorization: Bearer <JWT>`（登录接口返回，24h 有效）
+- 统一响应格式: `{ "code": 200, "message": "OK", "data": {...}, "timestamp": 1779628947780 }`
+- 分页响应: `{ "code": 200, "data": { "records": [...], "total": N, "page": 1, "pageSize": 10, "pages": M } }`
