@@ -1,0 +1,22 @@
+<view class="page">
+  <view class="card">
+    <view class="card-title">材料上传</view>
+    <text class="upload-hint">请根据当前节点的要求上传材料，带 * 为必传项</text>
+  </view>
+
+  <!-- 材料清单与上传 -->
+  <view class="card">
+    <material-upload
+      requiredList="{{requiredList}}"
+      files="{{files}}"
+      bind:filechange="onFileChange"
+      bind:uploaddone="onUploadDone"
+      bind:fileremove="onFileRemove"
+    ></material-upload>
+  </view>
+
+  <!-- 提交 -->
+  <view class="btn-primary {{allRequiredDone ? '' : 'btn-disabled'}}" bindtap="submitAll" disabled="{{!allRequiredDone}}">
+    提交审核
+  </view>
+</view>

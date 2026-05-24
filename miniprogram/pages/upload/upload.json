@@ -1,0 +1,6 @@
+{
+  "usingComponents": {
+    "material-upload": "/components/material-upload/material-upload"
+  },
+  "navigationBarTitleText": "材料上传"
+}

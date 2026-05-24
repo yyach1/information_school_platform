@@ -19,3 +19,14 @@ Thumbs.db
 # Env
 .env
 .env.local
+
+# 文档/参考资料（不提交到仓库）
+*.pdf
+*.docx
+老师需求.*
+分工文档.*
+
+# 临时文件
+_*_output.txt
+_*_utf8.txt
+_*_raw.xml
