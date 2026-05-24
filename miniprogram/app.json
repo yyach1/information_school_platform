@@ -1,0 +1,55 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/progress/progress",
+    "pages/progress/detail/detail",
+    "pages/upload/upload",
+    "pages/certificate/apply/apply",
+    "pages/certificate/list/list",
+    "pages/certificate/detail/detail",
+    "pages/qa/qa"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#1A6FB5",
+    "navigationBarTitleText": "学院服务平台",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#f5f5f5"
+  },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#1A6FB5",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "images/tab-home.png",
+        "selectedIconPath": "images/tab-home-active.png"
+      },
+      {
+        "pagePath": "pages/progress/progress",
+        "text": "党团进度",
+        "iconPath": "images/tab-progress.png",
+        "selectedIconPath": "images/tab-progress-active.png"
+      },
+      {
+        "pagePath": "pages/certificate/list/list",
+        "text": "我的证明",
+        "iconPath": "images/tab-cert.png",
+        "selectedIconPath": "images/tab-cert-active.png"
+      },
+      {
+        "pagePath": "pages/qa/qa",
+        "text": "智能问答",
+        "iconPath": "images/tab-qa.png",
+        "selectedIconPath": "images/tab-qa-active.png"
+      }
+    ]
+  },
+  "usingComponents": {
+    "material-upload": "/components/material-upload/material-upload",
+    "timeline": "/components/timeline/timeline"
+  }
+}

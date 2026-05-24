@@ -1,0 +1,49 @@
+<view class="page">
+  <view class="card">
+    <view class="card-title">选择证明类型</view>
+    <view class="type-grid">
+      <view class="type-item {{selectedType === item.certType ? 'type-selected' : ''}}"
+            wx:for="{{certTypes}}" wx:key="certType"
+            bindtap="selectType" data-type="{{item.certType}}">
+        <text class="type-name">{{item.label}}</text>
+        <text class="type-desc">{{item.description}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="card" wx:if="{{selectedType}}">
+    <view class="card-title">申请信息</view>
+
+    <view class="form-group">
+      <view class="form-label">申请标题<text class="required">*</text></view>
+      <input class="form-input" placeholder="请输入申请标题" value="{{title}}" bindinput="onTitleInput" />
+    </view>
+
+    <view class="form-group">
+      <view class="form-label">申请说明</view>
+      <textarea class="form-textarea" placeholder="请简要描述申请原因（选填）" value="{{description}}" bindinput="onDescInput" />
+    </view>
+
+    <view class="form-group" wx:if="{{selectedTypeInfo.requireAttachment}}">
+      <view class="form-label">上传附件<text class="required">*</text></view>
+      <view class="attach-area" wx:if="{{!attachmentFile}}">
+        <view class="attach-btn" bindtap="chooseFile">
+          <text>+ 选择文件</text>
+        </view>
+        <text class="attach-hint">{{selectedTypeInfo.requireAttachment ? '此类型必须上传附件' : '可选附件'}}</text>
+      </view>
+      <view class="attach-file" wx:else>
+        <text class="file-name">{{attachmentFile.name}}</text>
+        <view class="progress-bar" wx:if="{{attachmentFile.progress < 100}}">
+          <view class="progress-fill" style="width: {{attachmentFile.progress}}%"></view>
+        </view>
+        <text class="file-uploaded" wx:else>已上传</text>
+        <text class="file-remove" bindtap="removeFile">删除</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="btn-primary {{canSubmit ? '' : 'btn-disabled'}}" bindtap="submit" disabled="{{!canSubmit}}">
+    提交申请
+  </view>
+</view>

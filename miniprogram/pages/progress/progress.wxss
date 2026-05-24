@@ -1,0 +1,27 @@
+@import "../../styles/common.wxss";
+
+.process-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20rpx; }
+.process-info { display: flex; align-items: center; gap: 16rpx; }
+.process-name { font-size: 32rpx; font-weight: 600; color: #333; }
+.process-arrow { color: #ccc; font-size: 32rpx; }
+
+.mini-timeline { display: flex; align-items: flex-start; margin: 20rpx 0; overflow-x: auto; padding: 10rpx 0; }
+.mini-node { display: flex; flex-direction: column; align-items: center; margin-right: 30rpx; min-width: 100rpx; }
+
+.mini-dot {
+  width: 20rpx; height: 20rpx; border-radius: 50%; margin-bottom: 8rpx;
+}
+
+.dot-done { background: #07C160; }
+.dot-current { background: #1A6FB5; }
+.dot-pending { background: #ccc; }
+
+.mini-label { font-size: 22rpx; color: #999; }
+.mini-label.label-active { color: #1A6FB5; font-weight: 600; }
+
+.process-footer { display: flex; align-items: center; gap: 20rpx; margin-top: 20rpx; padding-top: 20rpx; border-top: 1rpx solid #f0f0f0; }
+.process-time { font-size: 24rpx; color: #999; flex: 1; }
+
+.process-item { display: flex; align-items: center; justify-content: space-between; padding: 24rpx 0; border-bottom: 1rpx solid #f0f0f0; }
+.process-item:last-child { border-bottom: none; }
+.process-desc { font-size: 24rpx; color: #999; margin-top: 6rpx; display: block; }

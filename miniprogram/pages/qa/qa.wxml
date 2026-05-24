@@ -1,0 +1,33 @@
+<view class="page">
+  <!-- 常用问题快捷入口 -->
+  <view class="quick-questions" wx:if="{{messages.length === 0}}">
+    <view class="card">
+      <view class="card-title">常见问题</view>
+      <view class="quick-item" wx:for="{{quickList}}" wx:key="index" bindtap="quickAsk" data-question="{{item}}">
+        <text class="quick-text">{{item}}</text>
+        <text class="quick-arrow">></text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 对话区 -->
+  <scroll-view class="chat-area" scroll-y scroll-into-view="msg-bottom" wx:if="{{messages.length > 0}}">
+    <view class="msg-item" wx:for="{{messages}}" wx:key="index" id="msg-{{index}}">
+      <view class="msg-bubble {{item.role === 'user' ? 'msg-user' : 'msg-bot'}}">
+        <text>{{item.content}}</text>
+      </view>
+      <view class="msg-extra" wx:if="{{item.links && item.links.length}}">
+        <text class="link-item" wx:for="{{item.links}}" wx:key="index" wx:for-item="link" bindtap="openLink" data-url="{{link.url}}">
+          {{link.title}}
+        </text>
+      </view>
+    </view>
+    <view id="msg-bottom"></view>
+  </scroll-view>
+
+  <!-- 输入栏 -->
+  <view class="input-bar">
+    <input class="chat-input" placeholder="输入问题，如：入党流程需要哪些材料" value="{{input}}" bindinput="onInput" bindconfirm="send" confirm-type="send" />
+    <view class="send-btn {{input ? 'send-active' : ''}}" bindtap="send">发送</view>
+  </view>
+</view>

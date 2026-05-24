@@ -1,0 +1,45 @@
+<view class="page">
+  <view class="card">
+    <view class="detail-header">
+      <text class="detail-title">{{detail.process.name || '加载中...'}}</text>
+      <text class="tag {{detail.status === 'IN_PROGRESS' ? 'tag-in-progress' : 'tag-completed'}}">
+        {{detail.status === 'IN_PROGRESS' ? '进行中' : '已完成'}}
+      </text>
+    </view>
+
+    <!-- 当前节点高亮卡片 -->
+    <view class="current-node" wx:if="{{detail.currentNode}}">
+      <text class="node-label">当前节点</text>
+      <text class="node-name">{{detail.currentNode.nodeName}}</text>
+      <text class="node-role">审核人角色：{{detail.currentNode.approverRole}}</text>
+    </view>
+  </view>
+
+  <!-- 时间轴 -->
+  <view class="card">
+    <view class="card-title">进度时间轴</view>
+    <timeline events="{{detail.nodes}}"></timeline>
+  </view>
+
+  <!-- 已提交材料 -->
+  <view class="card" wx:if="{{detail.materials && detail.materials.length}}">
+    <view class="card-title">已提交材料</view>
+    <view class="material-card" wx:for="{{detail.materials}}" wx:key="id">
+      <view class="material-header">
+        <text class="material-type">{{item.materialType}}</text>
+        <text class="tag {{item.status === 'APPROVED' ? 'tag-approved' : item.status === 'RETURNED' ? 'tag-returned' : 'tag-pending'}}">
+          {{item.status === 'APPROVED' ? '已通过' : item.status === 'RETURNED' ? '已退回' : '待审核'}}
+        </text>
+      </view>
+      <text class="material-file">{{item.fileUrl}}</text>
+    </view>
+  </view>
+
+  <!-- 操作按钮 -->
+  <view class="actions" wx:if="{{detail.currentNode}}">
+    <view class="btn-primary" bindtap="goUpload">提交材料</view>
+  </view>
+  <view class="actions" wx:elif="{{detail.status === 'COMPLETED'}}">
+    <view class="btn-disabled" style="background:#07C160">流程已完成</view>
+  </view>
+</view>
