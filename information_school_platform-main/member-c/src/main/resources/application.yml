@@ -1,0 +1,42 @@
+server:
+  port: 8080
+
+spring:
+  profiles:
+    active: dev
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: Asia/Shanghai
+    default-property-inclusion: non_null
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 25MB
+
+mybatis-plus:
+  type-aliases-package: com.ischool.isp.entity
+  global-config:
+    db-config:
+      id-type: auto
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+jwt:
+  secret: c2VjdXJlLXNlY3JldC1rZXktZm9yLWlzcC1wbGF0Zm9ybS0yMDI0
+  expiration: 86400000
+
+isp:
+  file-storage:
+    root-dir: ${FILE_STORAGE_ROOT:uploads}
+    max-size: 20971520
+    allowed-extensions:
+      - pdf
+      - doc
+      - docx
+      - xls
+      - xlsx
+      - png
+      - jpg
+      - jpeg
+      - txt
