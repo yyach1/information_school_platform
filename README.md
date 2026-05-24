@@ -31,6 +31,7 @@
 ├── docs/                     # 接口文档
 │   ├── 成员A_流程审批模块_接口说明书.txt
 │   └── 成员B_电子证明模块_接口说明书.txt
+├── A/                         # 成员A：流程审批模块（建表SQL + 接口说明书 + 需求文档）
 ├── miniprogram/              # 学生端微信小程序（成员B）
 │   ├── app.js / app.json / app.wxss
 │   ├── components/
@@ -58,6 +59,31 @@
 │   └── nginx-isp.conf        # Nginx 反向代理配置
 └── README.md
 ```
+
+## 成员A 当前进度
+
+### 已完成
+
+- **数据库设计** — `process`（流程模板）、`process_node`（流程节点）、`student_process`（学生流程记录）、`material`（材料）、`approval_record`（审核记录）五张核心业务表，含外键关联、状态约束和索引
+- **接口说明书** — 覆盖 3 大模块 13 个 REST API：
+
+| 模块 | 路径前缀 | 接口数 | 说明 |
+|------|---------|--------|------|
+| 学生端 | `/api/v1/student/` | 6 | 可办理流程、发起流程、进度详情、节点材料要求、提交材料、时间轴 |
+| 管理端-模板 | `/api/v1/admin/processes/` | 4 | 流程模板 CRUD + 节点配置 |
+| 管理端-审核 | `/api/v1/admin/materials/` | 3 | 材料筛选、详情、审核（通过/退回） |
+
+- **通知触发设计** — 定义了 4 类事件 `MATERIAL_SUBMITTED` / `MATERIAL_AUDITED` / `STUDENT_PROCESS_NODE_CHANGED` / `STUDENT_PROCESS_COMPLETED`，统一通过 `POST /api/internal/notification-events` 调用成员C通知服务
+- **工作流状态机** — 材料 `DRAFT → PENDING → APPROVED/RETURNED`，学生流程 `IN_PROGRESS → COMPLETED`
+
+### 待完成
+
+- [ ] 后端接口实现（建表 SQL 和接口说明书已完成）
+- [ ] 管理端流程模板配置页
+- [ ] 管理端材料审核工作台
+- [ ] 与成员C联调通知事件接口
+- [ ] 与成员B联调学生端页面接口
+- [ ] 与成员D对接文件上传（material.file_url）
 
 ## 成员B 当前进度
 
@@ -120,12 +146,26 @@ npm install
 npm run dev          # → http://localhost:3000
 ```
 
+### 跨团队集成
+
+| 方向 | 提供/依赖 | 对接人 | 状态 |
+|------|----------|--------|------|
+| C 提供 | JWT 登录认证（`/api/auth/login`） | A、B | 已就绪 |
+| C 提供 | 角色权限校验（STUDENT/TEACHER/ADMIN） | A、B | 已就绪 |
+| C 提供 | 通知创建 API（`POST /api/notifications`） | A（审核后触发通知） | 已就绪 |
+| C 提供 | 操作日志记录（`@OpLog` 注解） | A、B、D | 已就绪 |
+| C 提供 | 学生进度数据（`GET /api/admin/students/progress`） | A（流程审核时可查学生） | 已就绪 |
+| C 待提供 | 通知事件接收（`POST /api/internal/notification-events`） | A（`MATERIAL_SUBMITTED` 等事件） | 待新增 |
+| C 依赖 | 学生流程/材料数据 | A（进度总览需关联 A 的业务表） | 待联调 |
+| C 依赖 | 文件上传服务 | D（`/files/` 占位接口已写） | 待联调 |
+
 ### 待完成
 
-- [ ] 学生进度总览关联流程审核/材料表（待成员A提供接口）
+- [ ] 新增 `POST /api/internal/notification-events` 接口，接收成员A的材料提交/审核事件，自动创建通知和待办
+- [ ] 角色映射对齐（A 使用 COUNSELOR/LEAGUE_SECRETARY 等角色需映射到 C 的 TEACHER）
+- [ ] 学生进度总览关联 `student_process` + `material` 表，展示材料审核进度
 - [ ] 通知管理页面（后端 API 已就绪）
 - [ ] 文件上传模块（占位接口已写，待成员D实现）
-- [ ] 与成员A联调材料审核通知联动
 - [ ] Kingbase 生产环境部署
 
 ## 小程序本地运行
