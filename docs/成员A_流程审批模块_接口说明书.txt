@@ -1,0 +1,214 @@
+成员A：党团流程、材料提交与审核、通知触发——接口说明书（对齐《软件设计规格说明书》V1.0）
+
+1. 范围与对接关系
+1.1 成员A负责（按分工文档）
+- 党团流程：流程模板（process）与流程节点（process_node）配置与启停
+- 学生进度：学生流程记录（student_process）与进度/时间轴查询
+- 材料提交与审核：材料（material）入库、格式校验口径、审核（approval_record）写入与状态流转
+- 通知触发：在“提交材料/审核通过/审核退回/流程流转”等关键动作发生时，向成员C通知服务发送事件
+
+1.2 依赖其他成员
+- 成员C：登录认证、角色权限、通知表(notification)与待办/通知查询、操作日志(operation_log)
+- 成员D：文件存储服务（上传/下载/预览），material.file_url 指向文件存储位置
+- 成员B：学生端页面、证明办理(certificate_application)、智能问答前端
+
+2. 数据对象与状态（对齐 3.5 数据设计）
+2.1 流程模板 process
+- 字段：id, name, type, description, status, version, created_at
+- status：ENABLED / DISABLED（对应“是否启用”）
+
+2.2 流程节点 process_node
+- 字段：id, process_id, node_name, node_order, required_material, approver_role
+- required_material：建议存 JSON 字符串或用逗号分隔的材料类型列表（由前端用于渲染材料清单）
+
+2.3 学生流程记录 student_process
+- 字段：id, student_id, process_id, current_node_id, status, start_time, update_time
+- status：IN_PROGRESS / COMPLETED
+
+2.4 材料 material
+- 字段：id, student_id, node_id, material_type, file_url, file_name, status, submit_time（本实现额外包含 student_process_id、description、updated_at）
+- status：
+  - DRAFT：草稿/未提交（可选）
+  - PENDING：待审核（UC-04 提交后进入）
+  - APPROVED：审核通过（UC-07 通过）
+  - RETURNED：审核退回（UC-07 退回）
+
+2.5 审批记录 approval_record
+- 字段：id, material_id, approver_id, result, comment, approve_time
+- result：APPROVED / RETURNED
+- 约束：RETURNED 时 comment 必填（用于“退回原因”）
+
+3. 接口通用约定（对齐 2.2 接口规范）
+3.1 Base URL
+- /api
+
+3.2 认证与权限（成员C提供）
+- Authorization: Bearer <JWT>
+- 角色示例：学生、辅导员、团委老师、管理员（以成员C最终定义为准）
+
+3.3 通用响应体
+{ "code": 200, "message": "OK", "data": { ... }, "timestamp": 1710000000000 }
+
+4. 成员A提供的REST接口（给成员B/C/D）
+4.1 学生端接口（覆盖 UC-03 / UC-04）
+4.1.1 获取可办理流程列表（学生端首页入口）
+GET /api/student/processes?status=ENABLED&page=1&size=20
+响应 data 示例：
+{
+  "items": [
+    { "id": 1, "name": "入团流程", "type": "LEAGUE_JOIN", "version": 1 }
+  ],
+  "page": 1,
+  "size": 20,
+  "total": 1
+}
+
+4.1.2 发起/获取我的流程记录（首次进入可自动创建，或显式创建）
+POST /api/student/student-processes
+请求：
+{ "processId": 1 }
+响应 data：
+{ "id": 10001, "status": "IN_PROGRESS", "currentNodeId": 11 }
+
+4.1.3 查看我的流程进度详情（我的党团进度页）
+GET /api/student/student-processes/{id}
+响应 data 示例：
+{
+  "id": 10001,
+  "process": { "id": 1, "name": "入团流程", "type": "LEAGUE_JOIN", "version": 1 },
+  "status": "IN_PROGRESS",
+  "currentNode": { "id": 11, "nodeName": "辅导员审核", "nodeOrder": 1, "approverRole": "COUNSELOR" },
+  "nodes": [
+    { "id": 10, "nodeName": "材料提交", "nodeOrder": 0, "status": "DONE" },
+    { "id": 11, "nodeName": "辅导员审核", "nodeOrder": 1, "status": "CURRENT" }
+  ],
+  "materials": [
+    { "id": 90001, "nodeId": 10, "materialType": "ID_CARD_FRONT", "fileUrl": "https://files/xxx", "status": "PENDING" }
+  ],
+  "startTime": "2026-05-23T12:00:00",
+  "updateTime": "2026-05-23T12:30:00"
+}
+
+4.1.4 获取当前节点材料要求（材料上传页用于渲染材料清单）
+GET /api/student/student-processes/{id}/current-node/requirements
+响应 data 示例：
+{
+  "nodeId": 10,
+  "nodeName": "材料提交",
+  "requiredMaterial": [
+    { "materialType": "ID_CARD_FRONT", "required": true, "maxSizeMB": 10, "ext": ["jpg","png","pdf"] },
+    { "materialType": "ID_CARD_BACK", "required": true, "maxSizeMB": 10, "ext": ["jpg","png","pdf"] }
+  ]
+}
+
+4.1.5 提交材料（UC-04：提交后进入“待审核”，并生成待办通知）
+POST /api/student/student-processes/{id}/materials
+请求：
+{
+  "nodeId": 10,
+  "materialType": "ID_CARD_FRONT",
+  "fileUrl": "https://files/xxx",
+  "fileName": "id_front.jpg",
+  "description": "备注（可选）"
+}
+响应 data：
+{ "materialId": 90001, "status": "PENDING" }
+
+4.1.6 我的党团进度时间轴（UC-03：时间轴展示）
+GET /api/student/student-processes/{id}/timeline
+响应 data 示例：
+{
+  "studentProcessId": 10001,
+  "events": [
+    { "type": "MATERIAL_SUBMITTED", "time": "2026-05-23T12:01:00", "message": "材料已提交，等待审核" },
+    { "type": "MATERIAL_RETURNED", "time": "2026-05-23T12:10:00", "message": "材料被退回：请补传清晰版本" }
+  ]
+}
+
+4.2 管理端接口：流程模板管理（UC-08）
+4.2.1 分页查询流程模板
+GET /api/admin/processes?keyword=&status=&page=1&size=20
+
+4.2.2 创建流程模板
+POST /api/admin/processes
+请求：
+{ "name": "入团流程", "type": "LEAGUE_JOIN", "description": "..." }
+
+4.2.3 更新流程模板（含启用/停用）
+PUT /api/admin/processes/{id}
+请求：
+{ "name": "入团流程", "description": "...", "status": "ENABLED" }
+
+4.2.4 配置流程节点（一次性保存节点列表，按 node_order 排序）
+PUT /api/admin/processes/{id}/nodes
+请求：
+{
+  "nodes": [
+    { "nodeName": "材料提交", "nodeOrder": 0, "approverRole": "STUDENT", "requiredMaterial": "[...]"},
+    { "nodeName": "辅导员审核", "nodeOrder": 1, "approverRole": "COUNSELOR", "requiredMaterial": "[]" }
+  ]
+}
+
+4.3 管理端接口：材料审核工作台（UC-07）
+4.3.1 分页筛选材料（按年级/班级/流程/状态）
+GET /api/admin/materials?status=PENDING&grade=&className=&processType=&page=1&size=20
+
+4.3.2 查看材料详情（含附件地址与历史审批记录）
+GET /api/admin/materials/{id}
+
+4.3.3 审核材料（通过/退回，退回原因必填）
+POST /api/admin/materials/{id}/audit
+请求：
+{ "result": "APPROVED", "comment": "通过" }
+或：
+{ "result": "RETURNED", "comment": "材料不清晰，请补传" }
+响应 data：
+{ "materialId": 90001, "status": "APPROVED" }
+
+5. 通知触发对接（成员A -> 成员C）
+5.1 事件接收接口（建议成员C提供内部接口）
+POST /api/internal/notification-events
+
+5.2 事件类型建议（覆盖 UC-04/UC-07 的通知需求）
+- MATERIAL_SUBMITTED：学生提交材料后，给对应 approver_role 产生待办
+- MATERIAL_AUDITED：审核完成后，通知学生结果（通过/退回与原因）
+- STUDENT_PROCESS_NODE_CHANGED：材料通过导致流程进入下一节点（如需要对“下一步提示”做通知）
+- STUDENT_PROCESS_COMPLETED：流程结束
+
+5.3 事件契约示例（幂等：bizKey 唯一，成员C按 bizKey 去重）
+{
+  "eventType": "MATERIAL_SUBMITTED",
+  "occurredAt": "2026-05-23T12:01:02",
+  "bizKey": "material:90001:submitted",
+  "payload": {
+    "materialId": 90001,
+    "studentId": 20001,
+    "studentProcessId": 10001,
+    "processType": "LEAGUE_JOIN",
+    "nodeId": 10,
+    "nodeName": "材料提交",
+    "assigneeRole": "COUNSELOR",
+    "title": "材料待审核",
+    "content": "李四提交了入团材料，请及时审核"
+  }
+}
+
+6. 文件服务对接（成员A <- 成员D）
+- 学生端先上传文件到成员D文件服务，拿到可访问的 fileUrl（或 fileId 再拼出 fileUrl）
+- 成员A在 material 表中保存 file_url、file_name，并在接口中原样返回用于预览/下载
+
+7. 统计口径（给成员D）
+- material.status：按“待审核/通过/退回”统计
+- process.type：按流程类型统计
+- approval_record.approve_time：按时间区间统计审核量
+- approval_record.approver_id：按审核人统计
+
+8. 错误码建议（可选）
+- PROCESS_NOT_FOUND
+- PROCESS_DISABLED
+- STUDENT_PROCESS_NOT_FOUND
+- MATERIAL_NOT_FOUND
+- MATERIAL_DUPLICATED
+- MATERIAL_INVALID
+- MATERIAL_AUDIT_FORBIDDEN
+- MATERIAL_STATUS_CONFLICT

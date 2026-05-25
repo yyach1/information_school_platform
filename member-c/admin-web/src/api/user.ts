@@ -1,6 +1,8 @@
 import request from './request'
 import type { UserInfo } from './auth'
 
+export type { UserInfo } from './auth'
+
 export interface PageResult<T> {
   records: T[]
   total: number

@@ -26,12 +26,13 @@
 ```
 ├── db/kingbase/              # 数据库建表SQL
 │   ├── 001_init_user_core.sql          (成员C)
-│   ├── 成员A_流程审批模块_建表.sql      (成员A)
-│   └── 成员B_电子证明模块_建表.sql      (成员B)
+│   ├── 002_seed_admin_user.sql         (成员C)
+│   └── 成员A_流程审批模块_建表.sql      (成员A)
 ├── docs/                     # 接口文档
-│   ├── 成员A_流程审批模块_接口说明书.txt
-│   └── 成员B_电子证明模块_接口说明书.txt
-├── A/                         # 成员A：流程审批模块（建表SQL + 接口说明书 + 需求文档）
+│   ├── permission_matrix.md
+│   └── 成员A_流程审批模块_接口说明书.txt
+├── 成员B_电子证明模块_建表.sql
+├── 成员B_电子证明模块_接口说明书.txt
 ├── miniprogram/              # 学生端微信小程序（成员B）
 │   ├── app.js / app.json / app.wxss
 │   ├── components/
@@ -52,7 +53,7 @@
 │   ├── src/main/resources/   # 配置文件
 │   ├── admin-web/            # Vue 3 管理端（Element Plus）
 │   │   ├── src/api/          # API 封装
-│   │   ├── src/views/        # 登录/首页/用户管理/学生进度/系统日志
+│   │   ├── src/views/        # 登录/首页/用户管理/学生进度/系统日志/流程模板/材料审核
 │   │   ├── src/router/       # 路由 + 角色守卫
 │   │   └── src/stores/       # Pinia 状态管理
 │   ├── db/                   # 数据库 SQL（DDL + 种子数据）
@@ -65,25 +66,26 @@
 ### 已完成
 
 - **数据库设计** — `process`（流程模板）、`process_node`（流程节点）、`student_process`（学生流程记录）、`material`（材料）、`approval_record`（审核记录）五张核心业务表，含外键关联、状态约束和索引
-- **接口说明书** — 覆盖 3 大模块 13 个 REST API：
+- **接口说明书** — 覆盖学生端/管理端/内部事件 3 大模块接口
+- **后端接口实现（Spring Boot）** — 已在 `member-c` 落地成员A相关实体/Mapper/Service/Controller
+- **管理端页面** — 已新增“流程模板管理”“材料审核工作台”并完成路由与菜单挂载
 
 | 模块 | 路径前缀 | 接口数 | 说明 |
 |------|---------|--------|------|
-| 学生端 | `/api/v1/student/` | 6 | 可办理流程、发起流程、进度详情、节点材料要求、提交材料、时间轴 |
-| 管理端-模板 | `/api/v1/admin/processes/` | 4 | 流程模板 CRUD + 节点配置 |
-| 管理端-审核 | `/api/v1/admin/materials/` | 3 | 材料筛选、详情、审核（通过/退回） |
+| 学生端 | `/api/student/` | 6 | 可办理流程、发起流程、进度详情、节点材料要求、提交材料、时间轴 |
+| 管理端-模板 | `/api/admin/processes/` | 5 | 流程模板列表/创建/更新/节点配置/节点查询 |
+| 管理端-审核 | `/api/admin/materials/` | 3 | 材料筛选、详情、审核（通过/退回） |
+| 内部事件 | `/api/internal/notification-events` | 1 | 接收材料提交/审核事件并创建通知/待办 |
 
-- **通知触发设计** — 定义了 4 类事件 `MATERIAL_SUBMITTED` / `MATERIAL_AUDITED` / `STUDENT_PROCESS_NODE_CHANGED` / `STUDENT_PROCESS_COMPLETED`，统一通过 `POST /api/internal/notification-events` 调用成员C通知服务
+- **通知触发** — 已支持 `POST /api/internal/notification-events`，并在材料提交/审核时创建 TODO/NOTICE
 - **工作流状态机** — 材料 `DRAFT → PENDING → APPROVED/RETURNED`，学生流程 `IN_PROGRESS → COMPLETED`
 
 ### 待完成
 
-- [ ] 后端接口实现（建表 SQL 和接口说明书已完成）
-- [ ] 管理端流程模板配置页
-- [ ] 管理端材料审核工作台
-- [ ] 与成员C联调通知事件接口
-- [ ] 与成员B联调学生端页面接口
-- [ ] 与成员D对接文件上传（material.file_url）
+- [ ] Kingbase 初始化：执行 `db/kingbase/*.sql` + 成员B建表SQL，确保本地/服务器有完整表结构与种子数据
+- [ ] 审核人/角色映射对齐：节点 approver_role 与系统角色（STUDENT/TEACHER/ADMIN）最终口径统一
+- [ ] 与成员B联调“我的党团进度”列表接口（目前小程序 progress 页仍有占位逻辑注释）
+- [ ] 与成员D联调文件上传：确保 `file_url` 来源统一、附件访问权限校验落地
 
 ## 成员B 当前进度
 
@@ -136,7 +138,7 @@
 ### 本地运行
 
 ```bash
-# 后端（需要 JDK 17 + Maven）
+# 后端（需要 JDK 17；建议 IntelliJ 直接运行 IspApplication）
 cd member-c
 mvn spring-boot:run
 
@@ -155,13 +157,12 @@ npm run dev          # → http://localhost:3000
 | C 提供 | 通知创建 API（`POST /api/notifications`） | A（审核后触发通知） | 已就绪 |
 | C 提供 | 操作日志记录（`@OpLog` 注解） | A、B、D | 已就绪 |
 | C 提供 | 学生进度数据（`GET /api/admin/students/progress`） | A（流程审核时可查学生） | 已就绪 |
-| C 待提供 | 通知事件接收（`POST /api/internal/notification-events`） | A（`MATERIAL_SUBMITTED` 等事件） | 待新增 |
+| C 提供 | 通知事件接收（`POST /api/internal/notification-events`） | A（`MATERIAL_SUBMITTED` 等事件） | 已就绪 |
 | C 依赖 | 学生流程/材料数据 | A（进度总览需关联 A 的业务表） | 待联调 |
 | C 依赖 | 文件上传服务 | D（`/files/` 占位接口已写） | 待联调 |
 
 ### 待完成
 
-- [ ] 新增 `POST /api/internal/notification-events` 接口，接收成员A的材料提交/审核事件，自动创建通知和待办
 - [ ] 角色映射对齐（A 使用 COUNSELOR/LEAGUE_SECRETARY 等角色需映射到 C 的 TEACHER）
 - [ ] 学生进度总览关联 `student_process` + `material` 表，展示材料审核进度
 - [ ] 通知管理页面（后端 API 已就绪）

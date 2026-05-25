@@ -26,6 +26,18 @@ const routes: RouteRecordRaw[] = [
         meta: { roles: ['TEACHER', 'ADMIN'] },
       },
       {
+        path: 'processes',
+        name: 'ProcessManagement',
+        component: () => import('@/views/ProcessManagement.vue'),
+        meta: { roles: ['TEACHER', 'ADMIN'] },
+      },
+      {
+        path: 'materials',
+        name: 'MaterialAudit',
+        component: () => import('@/views/MaterialAudit.vue'),
+        meta: { roles: ['TEACHER', 'ADMIN'] },
+      },
+      {
         path: 'logs',
         name: 'SystemLogs',
         component: () => import('@/views/SystemLogs.vue'),

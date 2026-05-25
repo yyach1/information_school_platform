@@ -16,6 +16,16 @@
       <span>学生进度总览</span>
     </el-menu-item>
 
+    <el-menu-item v-if="hasRole(['TEACHER', 'ADMIN'])" index="/processes">
+      <el-icon><Setting /></el-icon>
+      <span>流程模板管理</span>
+    </el-menu-item>
+
+    <el-menu-item v-if="hasRole(['TEACHER', 'ADMIN'])" index="/materials">
+      <el-icon><DocumentChecked /></el-icon>
+      <span>材料审核</span>
+    </el-menu-item>
+
     <el-menu-item v-if="hasRole(['ADMIN'])" index="/users">
       <el-icon><UserFilled /></el-icon>
       <span>用户管理</span>
