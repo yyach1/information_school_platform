@@ -1,0 +1,23 @@
+<view class="login-page">
+  <view class="login-header">
+    <text class="login-title">信息学院服务平台</text>
+    <text class="login-desc">学生综合服务与党团管理</text>
+  </view>
+
+  <view class="login-form">
+    <view class="input-group">
+      <text class="input-label">用户名</text>
+      <input class="input-field" placeholder="请输入用户名/学号" value="{{username}}" bindinput="onInputUsername" />
+    </view>
+    <view class="input-group">
+      <text class="input-label">密码</text>
+      <input class="input-field" placeholder="请输入密码" password value="{{password}}" bindinput="onInputPassword" />
+    </view>
+    <button class="login-btn" loading="{{loading}}" bindtap="handleLogin">登录</button>
+  </view>
+
+  <view class="login-tips">
+    <text>学生请使用学号登录</text>
+    <text>教师/管理员请联系系统管理员</text>
+  </view>
+</view>

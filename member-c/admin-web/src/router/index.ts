@@ -38,6 +38,12 @@ const routes: RouteRecordRaw[] = [
         meta: { roles: ['TEACHER', 'ADMIN'] },
       },
       {
+        path: 'certificates',
+        name: 'CertificateManagement',
+        component: () => import('@/views/CertificateManagement.vue'),
+        meta: { roles: ['TEACHER', 'ADMIN'] },
+      },
+      {
         path: 'reports',
         name: 'ReportAnalysis',
         component: () => import('@/views/ReportAnalysis.vue'),
@@ -60,6 +66,30 @@ const routes: RouteRecordRaw[] = [
         name: 'UserManagement',
         component: () => import('@/views/UserManagement.vue'),
         meta: { roles: ['ADMIN'] },
+      },
+      // 学生端页面
+      {
+        path: 'student',
+        name: 'StudentDashboard',
+        redirect: '/student/certificates',
+      },
+      {
+        path: 'student/certificates',
+        name: 'StudentMyCertificates',
+        component: () => import('@/views/StudentMyCertificates.vue'),
+        meta: { roles: ['STUDENT'] },
+      },
+      {
+        path: 'student/notifications',
+        name: 'StudentNotifications',
+        component: () => import('@/views/StudentNotifications.vue'),
+        meta: { roles: ['STUDENT'] },
+      },
+      {
+        path: 'student/progress',
+        name: 'StudentProgressPage',
+        component: () => import('@/views/StudentProgressPage.vue'),
+        meta: { roles: ['STUDENT'] },
       },
     ],
   },

@@ -116,13 +116,18 @@ public class ReportServiceImpl implements ReportService {
     }
 
     private List<ReportCountItem> toCountItems(List<Map<String, Object>> rows) {
-        List<ReportCountItem> result = new ArrayList<>();
+        java.util.LinkedHashMap<String, Long> merged = new java.util.LinkedHashMap<>();
         for (Map<String, Object> row : rows) {
             Object name = get(row, "name");
             Object count = get(row, "count");
+            String key = String.valueOf(name).trim();
+            merged.merge(key, asLong(count), Long::sum);
+        }
+        List<ReportCountItem> result = new ArrayList<>();
+        for (Map.Entry<String, Long> e : merged.entrySet()) {
             result.add(ReportCountItem.builder()
-                    .name(String.valueOf(name))
-                    .count(asLong(count))
+                    .name(e.getKey())
+                    .count(e.getValue())
                     .build());
         }
         return result;

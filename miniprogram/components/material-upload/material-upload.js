@@ -21,14 +21,20 @@ Component({
     chooseFile(e) {
       var that = this;
       var materialType = e.currentTarget.dataset.type;
-      var extStr = e.currentTarget.dataset.ext || '';
-      var allowedExt = extStr.split(',').filter(Boolean);
+      if (!materialType) {
+        wx.showToast({ title: '材料类型未知', icon: 'none' });
+        return;
+      }
 
       wx.chooseMessageFile({
         count: 1,
         type: 'file',
         success(res) {
           var file = res.tempFiles[0];
+          if (!file) {
+            wx.showToast({ title: '未选择文件', icon: 'none' });
+            return;
+          }
           var check = validator.validateFile(file, 'all');
           if (!check.valid) {
             wx.showToast({ title: check.message, icon: 'none' });
@@ -57,8 +63,16 @@ Component({
           }).catch(function(err) {
             files[materialType].progress = -1;
             that.setData({ files: files });
-            wx.showToast({ title: '上传失败，请重试', icon: 'none' });
+            wx.showToast({ title: err.message || '上传失败，请重试', icon: 'none' });
           });
+        },
+        fail(err) {
+          console.log('chooseMessageFile failed:', err);
+          if (err.errMsg && err.errMsg.includes('cancel')) {
+            // 用户取消选择，不提示
+            return;
+          }
+          wx.showToast({ title: '选择文件失败，请重试', icon: 'none' });
         }
       });
     },

@@ -91,9 +91,9 @@ async function loadAll() {
       getUploadTrendReport(7),
     ])
     overview.value = o
-    materialStatus.value = m
-    processStatus.value = p
-    certificateStatus.value = c
+    materialStatus.value = mergeByName(m)
+    processStatus.value = mergeByName(p)
+    certificateStatus.value = mergeByName(c)
     uploadTrend.value = u
   } finally {
     loading.value = false
@@ -107,6 +107,15 @@ async function handleExport(type: string) {
   } catch (error) {
     ElMessage.error('导出失败')
   }
+}
+
+function mergeByName(list: ReportCountItem[]): ReportCountItem[] {
+  const map = new Map<string, number>()
+  for (const item of list) {
+    const key = item.name.trim()
+    map.set(key, (map.get(key) || 0) + item.count)
+  }
+  return Array.from(map, ([name, count]) => ({ name, count } as ReportCountItem))
 }
 
 function formatBytes(size: number) {
@@ -129,7 +138,6 @@ const ReportBlock = defineComponent({
     data: { type: Array as PropType<ReportCountItem[]>, required: true },
   },
   setup(props) {
-    const maxCount = computed(() => Math.max(1, ...props.data.map((item) => item.count)))
     return () => h(ElCard, { shadow: 'never', class: 'report-block' }, {
       header: () => h('div', { class: 'card-header' }, [
         h('span', props.title),
@@ -140,15 +148,6 @@ const ReportBlock = defineComponent({
           h(ElTableColumn, { prop: 'name', label: '维度', minWidth: 120 }),
           h(ElTableColumn, { prop: 'count', label: '数量', width: 80 }),
         ]),
-        h('div', { class: 'bars' }, props.data.map((item) =>
-          h('div', { class: 'bar-row', key: item.name }, [
-            h('span', { class: 'bar-name' }, item.name),
-            h('div', { class: 'bar-track' }, [
-              h('div', { class: 'bar-fill', style: { width: `${Math.max(6, (item.count / maxCount.value) * 100)}%` } }),
-            ]),
-            h('span', { class: 'bar-count' }, String(item.count)),
-          ])
-        )),
       ]),
     })
   },
@@ -197,38 +196,5 @@ onMounted(loadAll)
   display: flex;
   align-items: center;
   justify-content: space-between;
-}
-.bars {
-  margin-top: 14px;
-}
-.bar-row {
-  display: grid;
-  grid-template-columns: 96px 1fr 40px;
-  align-items: center;
-  gap: 8px;
-  margin: 8px 0;
-}
-.bar-name {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  color: #606266;
-  font-size: 12px;
-}
-.bar-track {
-  height: 10px;
-  border-radius: 8px;
-  background: #ebeef5;
-  overflow: hidden;
-}
-.bar-fill {
-  height: 100%;
-  border-radius: 8px;
-  background: #409eff;
-}
-.bar-count {
-  text-align: right;
-  font-size: 12px;
-  color: #303133;
 }
 </style>

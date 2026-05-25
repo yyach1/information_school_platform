@@ -49,6 +49,26 @@ public class InternalNotificationEventController {
                 String content = payload.get("content") != null ? payload.get("content").toString() : "材料状态已更新";
                 createNoticeToStudent(studentId, title, content, request.getEventType(), materialId);
             }
+            case "CERT_APPLICATION_SUBMITTED" -> {
+                String title = payload.get("title") != null ? payload.get("title").toString() : "证明申请待审核";
+                String content = payload.get("content") != null ? payload.get("content").toString() : "有新的电子证明申请";
+                Long bizId = asLong(payload.get("certificateId"));
+                createTodoToTeachers(title, content, request.getEventType(), bizId);
+            }
+            case "CERT_APPLICATION_AUDITED" -> {
+                Long studentId = asLong(payload.get("studentId"));
+                Long certificateId = asLong(payload.get("certificateId"));
+                String title = payload.get("title") != null ? payload.get("title").toString() : "证明申请审核结果";
+                String content = payload.get("content") != null ? payload.get("content").toString() : "证明申请状态已更新";
+                createNoticeToStudent(studentId, title, content, request.getEventType(), certificateId);
+            }
+            case "CERT_APPLICATION_ISSUED" -> {
+                Long studentId = asLong(payload.get("studentId"));
+                Long certificateId = asLong(payload.get("certificateId"));
+                String title = payload.get("title") != null ? payload.get("title").toString() : "电子证明已发放";
+                String content = payload.get("content") != null ? payload.get("content").toString() : "你的电子证明已发放，可在线下载";
+                createNoticeToStudent(studentId, title, content, request.getEventType(), certificateId);
+            }
             default -> {
             }
         }

@@ -16,7 +16,8 @@ function request(method, url, data) {
           resolve(res.data.data);
         } else if (res.statusCode === 401) {
           wx.removeStorageSync('token');
-          reject(new Error('登录已过期，请重新登录'));
+          wx.reLaunch({ url: '/pages/login/login' });
+          reject(new Error('登录已过期'));
         } else {
           reject(new Error(res.data.message || '请求失败'));
         }
@@ -33,6 +34,29 @@ module.exports = {
   get: (url, params) => request('GET', url, params),
   post: (url, data) => request('POST', url, data),
   put: (url, data) => request('PUT', url, data),
+
+  // === 登录 ===
+  login: (username, password) => {
+    return new Promise((resolve, reject) => {
+      wx.request({
+        method: 'POST',
+        url: BASE_URL + '/auth/login',
+        data: { username, password },
+        header: { 'Content-Type': 'application/json' },
+        success(res) {
+          if (res.statusCode === 200 && res.data.code === 200) {
+            resolve(res.data.data);
+          } else {
+            reject(new Error(res.data.message || '登录失败'));
+          }
+        },
+        fail() {
+          wx.showToast({ title: '网络异常', icon: 'none' });
+          reject(new Error('网络异常'));
+        }
+      });
+    });
+  },
 
   // === 成员A接口 ===
   getProcesses: (params) => request('GET', '/student/processes', params),
@@ -56,8 +80,6 @@ module.exports = {
     request('GET', `/student/certificates/${id}/download`),
 
   // === 文件上传（成员D提供）===
-  // relatedType: 'MATERIAL' | 'CERTIFICATE' | 'OTHER'
-  // relatedId: 业务记录ID（如 certificate.id）
   uploadFile: (filePath, relatedType, relatedId) => {
     return new Promise((resolve, reject) => {
       const token = wx.getStorageSync('token');
@@ -74,15 +96,23 @@ module.exports = {
           'Authorization': token ? `Bearer ${token}` : ''
         },
         success(res) {
-          const data = JSON.parse(res.data);
-          if (data.code === 200) {
-            resolve(data.data);
-          } else {
-            reject(new Error(data.message || '上传失败'));
+          try {
+            const data = JSON.parse(res.data);
+            if (data.code === 200) {
+              resolve(data.data);
+            } else {
+              reject(new Error(data.message || '上传失败'));
+            }
+          } catch (e) {
+            reject(new Error('服务器响应异常，状态码：' + res.statusCode));
           }
         },
         fail(err) {
-          wx.showToast({ title: '上传失败', icon: 'none' });
+          var msg = '上传失败';
+          if (err.errMsg) {
+            msg = err.errMsg.includes('timeout') ? '上传超时，请重试' : '上传失败，请检查网络';
+          }
+          wx.showToast({ title: msg, icon: 'none' });
           reject(err);
         }
       });

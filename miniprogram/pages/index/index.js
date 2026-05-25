@@ -26,14 +26,22 @@ Page({
     }).catch(function() {});
   },
 
+  startProcess(e) {
+    var id = e.currentTarget.dataset.id;
+    wx.showLoading({ title: '进入中...' });
+    var that = this;
+    api.getStudentProcesses(id).then(function(data) {
+      wx.hideLoading();
+      wx.navigateTo({ url: '/pages/progress/detail/detail?id=' + data.id });
+    }).catch(function(err) {
+      wx.hideLoading();
+      wx.showToast({ title: err.message || '进入失败', icon: 'none' });
+    });
+  },
+
   goNotice(e) {
     var id = e.currentTarget.dataset.id;
     wx.navigateTo({ url: '/pages/notice/detail?id=' + id });
-  },
-
-  goProgress(e) {
-    var id = e.currentTarget.dataset.id;
-    wx.navigateTo({ url: '/pages/progress/detail/detail?id=' + id });
   },
 
   goApplyProcess() {

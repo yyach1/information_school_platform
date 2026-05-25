@@ -1,0 +1,111 @@
+成员B：电子证明办理、学生端页面——接口说明书（对齐《软件设计规格说明书》V1.0）
+
+1. 范围与对接关系
+1.1 成员B负责（按分工文档）
+- 数据库表 certificate_application 的设计与实现
+- 电子证明模块（全栈）：学生申请、上传附件、管理端审核办理、学生查看结果
+- 学生端前端：学生首页、我的党团进度(时间轴)、材料上传页、提交状态反馈
+- 智能问答前端：对接问答接口，实现前端展示和交互
+
+1.2 依赖其他成员
+- 成员C：登录认证（JWT）、角色权限、通知服务、操作日志
+- 成员D：文件存储服务（上传/下载/预览），attachment_url 和 pdf_url 指向文件存储位置
+- 成员A：党团流程接口（学生首页的流程入口、进度时间轴、材料提交）
+
+2. 数据对象与状态
+2.1 电子证明申请 certificate_application
+- 字段：id, student_id, cert_type, title, description, attachment_url, attachment_name,
+  status, approver_id, approve_comment, pdf_url, apply_time, approve_time, issue_time, update_time
+- cert_type 枚举：
+  - ENROLLMENT：在学证明
+  - LEAVE：请假申请
+  - SEAL：盖章申请
+  - PARTY：党员证明
+  - TRANSCRIPT：成绩单证明
+- status 状态流转：
+  - PENDING：待审核（学生提交后进入）
+  - APPROVED：审核通过（老师审核通过，待办理发放）
+  - RETURNED：审核退回（老师退回，学生可修改重新提交）
+  - ISSUED：已发放（PDF已生成，学生可下载）
+- 约束：
+  - RETURNED 时 approve_comment 必填（退回原因）
+  - ISSUED 时 pdf_url 必填（已生成证明文件）
+
+状态流转示意：
+  PENDING ──→ APPROVED ──→ ISSUED
+     │            │
+     └──→ RETURNED ──→ PENDING（学生修改后重新提交）
+
+3. 接口通用约定
+3.1 Base URL
+- /api
+
+3.2 认证与权限（依赖成员C）
+- Authorization: Bearer <JWT>
+- 角色：学生、班主任/辅导员、团委老师、管理员
+
+3.3 通用响应体
+{
+  "code": 200,
+  "message": "OK",
+  "data": { ... }
+}
+
+3.4 与成员D文件服务的交互流程
+- 学生端先调用成员D的文件上传接口，上传附件，获取 file_url
+- 将 file_url 和 file_name 作为 attachment 信息写入证书申请
+- 管理端办理发放时，后端生成 PDF 后同样上传到成员D的文件服务，保存 pdf_url
+
+4. 学生端接口
+
+4.1 获取证书类型列表（学生端申请页面入口）
+GET /api/student/certificates/types
+
+4.2 提交证书申请（UC-05：创建申请）
+POST /api/student/certificates
+
+4.3 获取我的申请列表
+GET /api/student/certificates?status=&certType=&page=1&size=20
+
+4.4 查看申请详情与进度
+GET /api/student/certificates/{id}
+
+4.5 重新提交被退回的申请
+PUT /api/student/certificates/{id}
+
+4.6 下载证明PDF
+GET /api/student/certificates/{id}/download
+
+5. 管理端接口
+
+5.1 分页筛选证书申请
+GET /api/admin/certificates?status=&certType=&grade=&className=&keyword=&page=1&size=20
+
+5.2 查看申请详情
+GET /api/admin/certificates/{id}
+
+5.3 审核申请（通过/退回）
+POST /api/admin/certificates/{id}/audit
+
+5.4 办理发放（生成PDF后标记已发放）
+POST /api/admin/certificates/{id}/issue
+
+5.5 统计口径（给成员D）
+GET /api/admin/certificates/stats?startDate=&endDate=&certType=
+
+6. 通知触发对接（成员B -> 成员C）
+
+6.1 事件类型
+- CERT_APPLICATION_SUBMITTED：学生提交申请后，给对应审批老师产生待办
+- CERT_APPLICATION_AUDITED：审核完成（通过/退回），通知学生结果
+- CERT_APPLICATION_ISSUED：证明发放，通知学生下载
+
+7. 错误码建议
+- CERT_TYPE_INVALID：无效的证书类型
+- CERT_NOT_FOUND：申请记录不存在
+- CERT_ATTACHMENT_REQUIRED：该类型必须上传附件
+- CERT_STATUS_CONFLICT：当前状态不允许此操作
+- CERT_AUDIT_FORBIDDEN：无权限审核该申请
+- CERT_RETURN_COMMENT_REQUIRED：退回时必须填写原因
+- CERT_PDF_REQUIRED：发放时PDF地址必填
+- CERT_DOWNLOAD_FORBIDDEN：非ISSUED状态不可下载

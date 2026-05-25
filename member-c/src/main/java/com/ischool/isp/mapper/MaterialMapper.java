@@ -33,12 +33,12 @@ public interface MaterialMapper extends BaseMapper<Material> {
             LEFT JOIN student_process sp ON sp.id = m.student_process_id
             LEFT JOIN process p ON p.id = sp.process_id
             LEFT JOIN process_node pn ON pn.id = m.node_id
-            WHERE (:status IS NULL OR m.status = :status)
-              AND (:grade IS NULL OR s.grade = :grade)
-              AND (:className IS NULL OR s.class_name = :className)
-              AND (:processType IS NULL OR p.type = :processType)
+            WHERE (#{status} IS NULL OR m.status = #{status})
+              AND (#{grade} IS NULL OR s.grade = #{grade})
+              AND (#{className} IS NULL OR s.class_name = #{className})
+              AND (#{processType} IS NULL OR p.type = #{processType})
             ORDER BY m.submit_time DESC
-            LIMIT :limit OFFSET :offset
+            LIMIT #{limit} OFFSET #{offset}
             """)
     List<AdminMaterialListItemResponse> listAdminMaterials(
             @Param("status") String status,
@@ -55,10 +55,10 @@ public interface MaterialMapper extends BaseMapper<Material> {
             JOIN student s ON s.id = m.student_id
             LEFT JOIN student_process sp ON sp.id = m.student_process_id
             LEFT JOIN process p ON p.id = sp.process_id
-            WHERE (:status IS NULL OR m.status = :status)
-              AND (:grade IS NULL OR s.grade = :grade)
-              AND (:className IS NULL OR s.class_name = :className)
-              AND (:processType IS NULL OR p.type = :processType)
+            WHERE (#{status} IS NULL OR m.status = #{status})
+              AND (#{grade} IS NULL OR s.grade = #{grade})
+              AND (#{className} IS NULL OR s.class_name = #{className})
+              AND (#{processType} IS NULL OR p.type = #{processType})
             """)
     long countAdminMaterials(
             @Param("status") String status,

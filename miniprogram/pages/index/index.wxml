@@ -26,24 +26,23 @@
     </view>
   </view>
 
-  <!-- 当前流程 -->
+  <!-- 可办理的流程 -->
   <view class="card">
-    <view class="card-title">我的流程</view>
+    <view class="card-title">党团流程</view>
     <view class="process-list" wx:if="{{processes.length}}">
-      <view class="process-item" wx:for="{{processes}}" wx:key="id" bindtap="goProgress" data-id="{{item.id}}">
+      <view class="process-item" wx:for="{{processes}}" wx:key="id" bindtap="startProcess" data-id="{{item.id}}">
         <view class="process-left">
-          <text class="process-name">{{item.process.name}}</text>
-          <text class="process-status tag {{item.status === 'IN_PROGRESS' ? 'tag-in-progress' : 'tag-completed'}}">{{item.status === 'IN_PROGRESS' ? '进行中' : '已完成'}}</text>
+          <text class="process-name">{{item.name}}</text>
+          <text class="process-status tag tag-in-progress">{{item.type === 'PARTY' ? '党建' : '团建'}}</text>
         </view>
         <view class="process-right">
-          <text class="process-node">{{item.currentNode ? item.currentNode.nodeName : ''}}</text>
+          <text class="process-node">{{item.description || '点击查看详情'}}</text>
           <text class="process-arrow">></text>
         </view>
       </view>
     </view>
     <view class="empty-state" wx:else>
-      <text>暂无进行中的流程</text>
-      <view class="btn-outline" style="margin-top:20rpx" bindtap="goApplyProcess">办理党团流程</view>
+      <text>暂无可办理的流程</text>
     </view>
   </view>
 

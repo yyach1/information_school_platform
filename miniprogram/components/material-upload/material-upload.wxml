@@ -6,12 +6,12 @@
   <view class="material-item" wx:for="{{requiredList}}" wx:key="materialType">
     <view class="material-info">
       <text class="material-name">
-        {{item.label}}
+        {{item.materialType || item.label}}
         <text wx:if="{{item.required}}" class="required">*</text>
       </text>
-      <text class="material-hint">
-        {{item.maxSizeMB ? '大小≤' + item.maxSizeMB + 'MB' : ''}}
-        {{item.ext ? ' 支持' + item.ext.join('、') : ''}}
+      <text class="material-hint" wx:if="{{item.maxSizeMB || item.ext}}">
+        <text wx:if="{{item.maxSizeMB}}"> ≤{{item.maxSizeMB}}MB</text>
+        <text wx:if="{{item.ext && item.ext.length}}"> 支持 {{item.ext}} 格式</text>
       </text>
     </view>
     <view class="material-file" wx:if="{{files[item.materialType]}}">
@@ -22,7 +22,7 @@
       <text class="file-uploaded" wx:else>已上传</text>
       <text class="file-remove" bindtap="removeFile" data-type="{{item.materialType}}">删除</text>
     </view>
-    <view class="material-upload-btn" wx:else bindtap="chooseFile" data-type="{{item.materialType}}" data-ext="{{item.ext}}">
+    <view class="material-upload-btn" wx:else bindtap="chooseFile" data-type="{{item.materialType}}">
       <text>+ 选择文件</text>
     </view>
   </view>
