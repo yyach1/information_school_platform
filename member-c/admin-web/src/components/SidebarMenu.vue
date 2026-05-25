@@ -26,6 +26,16 @@
       <span>材料审核</span>
     </el-menu-item>
 
+    <el-menu-item v-if="hasRole(['TEACHER', 'ADMIN'])" index="/reports">
+      <el-icon><TrendCharts /></el-icon>
+      <span>统计分析报表</span>
+    </el-menu-item>
+
+    <el-menu-item v-if="hasRole(['TEACHER', 'ADMIN'])" index="/files">
+      <el-icon><FolderOpened /></el-icon>
+      <span>文件管理</span>
+    </el-menu-item>
+
     <el-menu-item v-if="hasRole(['ADMIN'])" index="/users">
       <el-icon><UserFilled /></el-icon>
       <span>用户管理</span>

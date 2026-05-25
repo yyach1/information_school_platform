@@ -159,15 +159,32 @@ npm run dev          # → http://localhost:3000
 | C 提供 | 学生进度数据（`GET /api/admin/students/progress`） | A（流程审核时可查学生） | 已就绪 |
 | C 提供 | 通知事件接收（`POST /api/internal/notification-events`） | A（`MATERIAL_SUBMITTED` 等事件） | 已就绪 |
 | C 依赖 | 学生流程/材料数据 | A（进度总览需关联 A 的业务表） | 待联调 |
-| C 依赖 | 文件上传服务 | D（`/files/` 占位接口已写） | 待联调 |
+| C 依赖 | 文件上传服务 | D（`/api/files/*` 已实现） | 待联调 |
 
 ### 待完成
 
 - [ ] 角色映射对齐（A 使用 COUNSELOR/LEAGUE_SECRETARY 等角色需映射到 C 的 TEACHER）
 - [ ] 学生进度总览关联 `student_process` + `material` 表，展示材料审核进度
 - [ ] 通知管理页面（后端 API 已就绪）
-- [ ] 文件上传模块（占位接口已写，待成员D实现）
+- [x] 文件上传模块（成员D已实现，待联调）
 - [ ] Kingbase 生产环境部署
+
+## 成员D 当前进度
+
+### 已完成
+
+- **文件存储服务** — 已实现 `/api/files/upload`、`/api/files`、`/api/files/{fileId}`、`/api/files/{fileId}/preview`、`/api/files/{fileId}/meta`、`DELETE /api/files/{fileId}`，支持本地 `uploads/` 存储、文件元数据入库、扩展名/大小校验、角色权限隔离。
+- **数据库设计** — 新增 `file_record` 表，提供 `db/kingbase/004_member_d_file_report.sql` 与 `member-c/db/004_member_d_file_report.sql`。
+- **统计分析模块** — 已实现 `/api/reports/overview`、`/api/reports/material-status`、`/api/reports/process-status`、`/api/reports/certificate-status`、`/api/reports/upload-trend`、`/api/reports/export`。
+- **管理端页面** — 已新增“统计分析报表”和“文件管理”两个 Vue 页面，并挂载到管理端路由与侧边栏。
+- **代码管理** — 已补充 `.gitattributes`、`.editorconfig`、PR 模板、Git 安全合并说明、检查脚本和本地启动脚本。
+- **前端工程化** — 已补充管理端 API 封装、通用类型、文件下载工具、`.env.example` 与前端工程化说明。
+
+### 待联调
+
+- 与成员A确认 `material.file_url` 统一使用 `/api/files/{fileId}`，材料审核状态仍由 A 的材料模块维护。
+- 与成员B确认小程序上传组件以 `multipart/form-data` 调用 `/api/files/upload`，并保存返回的 `fileUrl` / `previewUrl`。
+- 部署时执行 `004_member_d_file_report.sql`，并确认 `uploads/` 目录具备后端进程写入权限。
 
 ## 小程序本地运行
 

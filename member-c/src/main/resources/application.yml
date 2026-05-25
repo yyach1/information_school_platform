@@ -21,3 +21,19 @@ mybatis-plus:
 jwt:
   secret: c2VjdXJlLXNlY3JldC1rZXktZm9yLWlzcC1wbGF0Zm9ybS0yMDI0
   expiration: 86400000
+
+
+isp:
+  file-storage:
+    root-dir: uploads
+    max-size: 20971520
+    allowed-extensions:
+      - pdf
+      - doc
+      - docx
+      - xls
+      - xlsx
+      - png
+      - jpg
+      - jpeg
+      - txt

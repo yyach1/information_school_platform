@@ -1,0 +1,5 @@
+<type>: <summary>
+
+# type 可选：feat/fix/docs/refactor/test/chore/style
+# summary 用一句话说明改动，例如：feat: add member D file management page
+# 正文可说明影响模块、联调对象、数据库变化。

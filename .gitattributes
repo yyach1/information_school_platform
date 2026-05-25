@@ -1,0 +1,12 @@
+# 统一仓库换行，避免 Windows 下反复出现 LF/CRLF 警告
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.docx binary
+*.xlsx binary
+*.zip binary

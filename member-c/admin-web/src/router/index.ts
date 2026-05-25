@@ -38,6 +38,18 @@ const routes: RouteRecordRaw[] = [
         meta: { roles: ['TEACHER', 'ADMIN'] },
       },
       {
+        path: 'reports',
+        name: 'ReportAnalysis',
+        component: () => import('@/views/ReportAnalysis.vue'),
+        meta: { roles: ['TEACHER', 'ADMIN'] },
+      },
+      {
+        path: 'files',
+        name: 'FileManagement',
+        component: () => import('@/views/FileManagement.vue'),
+        meta: { roles: ['TEACHER', 'ADMIN'] },
+      },
+      {
         path: 'logs',
         name: 'SystemLogs',
         component: () => import('@/views/SystemLogs.vue'),

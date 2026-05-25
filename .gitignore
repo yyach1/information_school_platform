@@ -30,3 +30,9 @@ Thumbs.db
 _*_output.txt
 _*_utf8.txt
 _*_raw.xml
+# Runtime upload files
+uploads/
+member-c/uploads/
+
+# Local logs
+*.log
