@@ -1,13 +1,6 @@
 App({
   onLaunch() {
-    this.checkLogin();
-  },
-
-  checkLogin() {
-    const token = wx.getStorageSync('token');
-    if (!token) {
-      wx.reLaunch({ url: '/pages/index/index' });
-    }
+    // 登录由成员C提供，联调时启用
   },
 
   globalData: {

@@ -16,8 +16,7 @@ function request(method, url, data) {
           resolve(res.data.data);
         } else if (res.statusCode === 401) {
           wx.removeStorageSync('token');
-          wx.reLaunch({ url: '/pages/index/index' });
-          reject(new Error('登录已过期'));
+          reject(new Error('登录已过期，请重新登录'));
         } else {
           reject(new Error(res.data.message || '请求失败'));
         }

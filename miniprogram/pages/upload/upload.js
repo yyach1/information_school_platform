@@ -11,6 +11,22 @@ Page({
 
   onLoad(options) {
     var processId = options.processId;
+    if (!processId) {
+      // 如果没有指定流程，引导用户先去党团进度选择
+      wx.showModal({
+        title: '提示',
+        content: '请先在"党团进度"中选择一个流程节点',
+        confirmText: '去选择',
+        success: function(res) {
+          if (res.confirm) {
+            wx.switchTab({ url: '/pages/progress/progress' });
+          } else {
+            wx.navigateBack();
+          }
+        }
+      });
+      return;
+    }
     this.setData({ processId: processId });
     this.loadRequirements(processId);
   },
