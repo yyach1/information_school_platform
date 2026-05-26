@@ -19,6 +19,8 @@ Page({
   data: {
     list: [],
     loading: true,
+    permissionDenied: false,
+    userInfo: null,
     statusOptions: [
       { value: '', label: '全部状态' },
       { value: 'PENDING', label: '待审核' },
@@ -41,12 +43,14 @@ Page({
   },
 
   onShow() {
+    var userInfo = wx.getStorageSync('userInfo');
+    this.setData({ userInfo: userInfo || {} });
     this.loadList();
   },
 
   loadList() {
     var that = this;
-    this.setData({ loading: true });
+    this.setData({ loading: true, permissionDenied: false });
     var params = { page: 1, size: 50 };
     if (this.data.activeStatus) params.status = this.data.activeStatus;
     if (this.data.activeType) params.certType = this.data.activeType;
@@ -57,9 +61,17 @@ Page({
         item.certTypeLabel = CERT_TYPE_LABELS[item.certType] || item.certType;
         item.statusLabel = STATUS_LABELS[item.status] || item.status;
       });
-      that.setData({ list: list, loading: false });
-    }).catch(function() {
+      that.setData({ list: list, loading: false, permissionDenied: false });
+    }).catch(function(err) {
       that.setData({ loading: false });
+      if (err && err.code === 'AUTH_EXPIRED') {
+        wx.reLaunch({ url: '/pages/login/login' });
+        return;
+      }
+      // 403 或角色不对 → 显示提示而不跳转
+      if (that.data.userInfo && that.data.userInfo.role !== 'STUDENT') {
+        that.setData({ permissionDenied: true });
+      }
     });
   },
 

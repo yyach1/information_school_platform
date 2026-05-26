@@ -1,5 +1,11 @@
 <view class="page">
-  <!-- 筛选栏 -->
+  <!-- 权限提示 -->
+  <view class="perm-tip" wx:if="{{permissionDenied}}">
+    <text class="perm-tip-text">「我的证明」仅面向学生角色开放，当前管理员账号无法查看。\n\n请通过管理后台创建学生测试账号后重新登录。</text>
+  </view>
+
+  <block wx:if="{{!permissionDenied}}">
+    <!-- 筛选栏 -->
   <view class="filter-bar">
     <picker mode="selector" range="{{statusOptions}}" range-key="label" bindchange="onStatusFilter">
       <text class="filter-item">{{activeStatusLabel || '全部状态'}}</text>
@@ -33,4 +39,5 @@
 
   <!-- 申请按钮 -->
   <view class="btn-primary fixed-bottom" bindtap="goApply">申请新证明</view>
+  </block>
 </view>
