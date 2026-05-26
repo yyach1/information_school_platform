@@ -89,14 +89,7 @@
 .quick-icon {
   width: 96rpx; height: 96rpx; border-radius: 28rpx;
   margin-bottom: 14rpx;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 44rpx;
 }
-
-.icon-process { background: linear-gradient(135deg, #E3F0FB, #D0E7FA); }
-.icon-upload  { background: linear-gradient(135deg, #FFF0E0, #FFE4CC); }
-.icon-cert   { background: linear-gradient(135deg, #E6F5EC, #D0EDDB); }
-.icon-qa      { background: linear-gradient(135deg, #F0E6F6, #E6D6F0); }
 
 .quick-label { font-size: 24rpx; color: #555; font-weight: 500; }
 

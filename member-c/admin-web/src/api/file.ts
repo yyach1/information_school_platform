@@ -1,4 +1,3 @@
-import axios from 'axios'
 import request from './request'
 import type { PageResult } from '@/types/common'
 
@@ -26,11 +25,6 @@ export interface FileQuery {
   keyword?: string
 }
 
-function authHeaders() {
-  const token = localStorage.getItem('token')
-  return token ? { Authorization: `Bearer ${token}` } : {}
-}
-
 export function listFiles(params: FileQuery) {
   return request.get<any, PageResult<FileRecord>>('/files', { params })
 }
@@ -49,16 +43,27 @@ export function uploadFile(formData: FormData) {
   })
 }
 
-export function downloadFileBlob(fileId: number) {
-  return axios.get(`/api/files/${fileId}`, {
-    responseType: 'blob',
-    headers: authHeaders(),
+async function fetchBlob(url: string): Promise<Blob> {
+  const token = localStorage.getItem('token')
+  const res = await fetch(url, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
   })
+  if (!res.ok) {
+    const text = await res.text()
+    let msg = `请求失败 (${res.status})`
+    try {
+      const json = JSON.parse(text)
+      if (json.message) msg = json.message
+    } catch {}
+    throw new Error(msg)
+  }
+  return res.blob()
 }
 
-export function previewFileBlob(fileId: number) {
-  return axios.get(`/api/files/${fileId}/preview`, {
-    responseType: 'blob',
-    headers: authHeaders(),
-  })
+export function downloadFileBlob(fileId: number): Promise<Blob> {
+  return fetchBlob(`/api/files/${fileId}`)
+}
+
+export function previewFileBlob(fileId: number): Promise<Blob> {
+  return fetchBlob(`/api/files/${fileId}/preview`)
 }

@@ -230,16 +230,23 @@ async function submitUpload() {
 }
 
 async function handlePreview(row: FileRecord) {
-  const response = await previewFileBlob(row.id)
-  const blob = new Blob([response.data], { type: row.contentType || response.data.type })
-  const url = URL.createObjectURL(blob)
-  window.open(url, '_blank')
-  setTimeout(() => URL.revokeObjectURL(url), 60_000)
+  try {
+    const blob = await previewFileBlob(row.id)
+    const url = URL.createObjectURL(blob)
+    window.open(url, '_blank')
+    setTimeout(() => URL.revokeObjectURL(url), 60_000)
+  } catch (e: any) {
+    ElMessage.error(e.message || '预览失败')
+  }
 }
 
 async function handleDownload(row: FileRecord) {
-  const response = await downloadFileBlob(row.id)
-  downloadBlob(response.data, row.originalName || `file-${row.id}`)
+  try {
+    const blob = await downloadFileBlob(row.id)
+    downloadBlob(blob, row.originalName || `file-${row.id}`)
+  } catch (e: any) {
+    ElMessage.error(e.message || '下载失败')
+  }
 }
 
 async function handleDelete(row: FileRecord) {

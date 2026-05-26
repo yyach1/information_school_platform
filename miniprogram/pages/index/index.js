@@ -81,5 +81,9 @@ Page({
 
   goQA() {
     wx.switchTab({ url: '/pages/qa/qa' });
+  },
+
+  goMine() {
+    wx.switchTab({ url: '/pages/mine/mine' });
   }
 });

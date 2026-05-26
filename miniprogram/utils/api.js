@@ -57,6 +57,8 @@ module.exports = {
     });
   },
 
+  logout: () => request('POST', '/auth/logout'),
+
   // === 成员A接口 ===
   getProcesses: (params) => request('GET', '/student/processes', params),
   getStudentProcesses: (processId) =>

@@ -1,4 +1,3 @@
-import axios from 'axios'
 import request from './request'
 
 export interface ReportOverview {
@@ -46,12 +45,16 @@ export function getUploadTrendReport(days = 7) {
 
 export async function downloadReport(type: string) {
   const token = localStorage.getItem('token')
-  const response = await axios.get('/api/reports/export', {
-    params: { type },
-    responseType: 'blob',
+  const res = await fetch(`/api/reports/export?type=${encodeURIComponent(type)}`, {
     headers: token ? { Authorization: `Bearer ${token}` } : {},
   })
-  const blob = new Blob([response.data], { type: 'text/csv;charset=utf-8;' })
+  if (!res.ok) {
+    const text = await res.text()
+    let msg = `导出失败 (${res.status})`
+    try { const json = JSON.parse(text); if (json.message) msg = json.message } catch {}
+    throw new Error(msg)
+  }
+  const blob = await res.blob()
   const url = window.URL.createObjectURL(blob)
   const link = document.createElement('a')
   link.href = url

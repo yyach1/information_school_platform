@@ -1,7 +1,7 @@
 <view class="page">
   <!-- 头部 -->
   <view class="header">
-    <view class="user-info">
+    <view class="user-info" bindtap="goMine">
       <image class="avatar" src="{{userInfo.avatar || '/images/default-avatar.png'}}" mode="aspectFill"></image>
       <view class="user-text">
         <text class="user-name">{{greeting}}，{{userInfo.realName || '同学'}}</text>
@@ -39,19 +39,19 @@
     <view class="card-title">快捷服务</view>
     <view class="quick-grid">
       <view class="quick-item" bindtap="goApplyProcess">
-        <view class="quick-icon icon-process">📋</view>
+        <image class="quick-icon" src="/images/quick-process.png" mode="aspectFit"></image>
         <text class="quick-label">党团进度</text>
       </view>
       <view class="quick-item" bindtap="goUploadMaterial">
-        <view class="quick-icon icon-upload">📎</view>
+        <image class="quick-icon" src="/images/quick-upload.png" mode="aspectFit"></image>
         <text class="quick-label">材料上传</text>
       </view>
       <view class="quick-item" bindtap="goApplyCertificate">
-        <view class="quick-icon icon-cert">📜</view>
+        <image class="quick-icon" src="/images/quick-cert.png" mode="aspectFit"></image>
         <text class="quick-label">证明办理</text>
       </view>
       <view class="quick-item" bindtap="goQA">
-        <view class="quick-icon icon-qa">💬</view>
+        <image class="quick-icon" src="/images/quick-qa.png" mode="aspectFit"></image>
         <text class="quick-label">智能问答</text>
       </view>
     </view>
