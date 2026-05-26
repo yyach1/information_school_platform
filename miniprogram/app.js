@@ -11,7 +11,7 @@ App({
   },
 
   globalData: {
-    baseUrl: 'http://localhost:8080/api',
+    baseUrl: 'http://10.10.0.30/api',
     userInfo: null
   }
 });
