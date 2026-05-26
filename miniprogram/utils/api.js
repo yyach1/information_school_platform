@@ -119,6 +119,37 @@ module.exports = {
     });
   },
 
+  // === 文件下载（适配相对路径） ===
+  getFullUrl: function(relativeUrl) {
+    if (!relativeUrl) return '';
+    if (relativeUrl.indexOf('http') === 0) return relativeUrl;
+    var domain = BASE_URL.replace(/\/api\/?$/, '');
+    return domain + relativeUrl;
+  },
+
+  downloadFile: function(relativeUrl) {
+    var fullUrl = this.getFullUrl(relativeUrl);
+    var token = wx.getStorageSync('token');
+    return new Promise(function(resolve, reject) {
+      wx.downloadFile({
+        url: fullUrl,
+        header: {
+          'Authorization': token ? 'Bearer ' + token : ''
+        },
+        success: function(res) {
+          if (res.statusCode === 200) {
+            resolve(res);
+          } else {
+            reject(new Error('下载失败，状态码：' + res.statusCode));
+          }
+        },
+        fail: function(err) {
+          reject(err);
+        }
+      });
+    });
+  },
+
   // === 智能问答 ===
   askQuestion: (question) => request('POST', '/qa/ask', { question })
 };

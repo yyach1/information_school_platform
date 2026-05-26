@@ -34,29 +34,35 @@ Page({
 
   previewFile() {
     var url = this.data.detail.attachmentUrl;
-    if (url) {
-      wx.downloadFile({
-        url: url,
-        success: function(res) {
-          wx.openDocument({ filePath: res.tempFilePath });
-        }
-      });
-    }
+    if (!url) return;
+    wx.showLoading({ title: '下载中...' });
+    api.downloadFile(url).then(function(res) {
+      wx.hideLoading();
+      wx.openDocument({ filePath: res.tempFilePath });
+    }).catch(function() {
+      wx.hideLoading();
+      wx.showToast({ title: '文件预览失败', icon: 'none' });
+    });
   },
 
   downloadPdf() {
     var that = this;
+    wx.showLoading({ title: '获取下载链接...' });
     api.downloadCertificate(this.data.id).then(function(data) {
-      if (data.pdfUrl) {
-        wx.downloadFile({
-          url: data.pdfUrl,
-          success: function(res) {
-            wx.openDocument({ filePath: res.tempFilePath });
-          }
-        });
+      if (!data.pdfUrl) {
+        wx.hideLoading();
+        wx.showToast({ title: 'PDF尚未生成', icon: 'none' });
+        return;
+      }
+      return api.downloadFile(data.pdfUrl);
+    }).then(function(res) {
+      wx.hideLoading();
+      if (res) {
+        wx.openDocument({ filePath: res.tempFilePath });
       }
     }).catch(function(err) {
-      wx.showToast({ title: err.message, icon: 'none' });
+      wx.hideLoading();
+      wx.showToast({ title: err.message || '下载失败', icon: 'none' });
     });
   },
 
