@@ -64,12 +64,9 @@ Page({
       that.setData({ list: list, loading: false, permissionDenied: false });
     }).catch(function(err) {
       that.setData({ loading: false });
-      if (err && err.code === 'AUTH_EXPIRED') {
-        wx.reLaunch({ url: '/pages/login/login' });
-        return;
-      }
-      // 403 或角色不对 → 显示提示而不跳转
-      if (that.data.userInfo && that.data.userInfo.role !== 'STUDENT') {
+      // 权限不足 → 显示提示，不跳转
+      var role = (that.data.userInfo && that.data.userInfo.role) || '';
+      if (role !== 'STUDENT') {
         that.setData({ permissionDenied: true });
       }
     });
@@ -97,5 +94,9 @@ Page({
 
   goApply() {
     wx.navigateTo({ url: '/pages/certificate/apply/apply' });
+  },
+
+  goToHome() {
+    wx.switchTab({ url: '/pages/index/index' });
   }
 });
