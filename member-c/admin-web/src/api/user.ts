@@ -57,3 +57,7 @@ export function resetPassword(id: number, newPassword: string) {
 export function updateUserStatus(id: number, status: string) {
   return request.put(`/users/${id}/status`, { status })
 }
+
+export function deleteUser(id: number, adminPassword: string) {
+  return request.delete(`/users/${id}`, { data: { adminPassword } })
+}

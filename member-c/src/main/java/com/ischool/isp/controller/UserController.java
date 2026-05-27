@@ -3,6 +3,7 @@ package com.ischool.isp.controller;
 import com.ischool.isp.annotation.OpLog;
 import com.ischool.isp.common.PageResult;
 import com.ischool.isp.common.Result;
+import com.ischool.isp.dto.request.DeleteUserRequest;
 import com.ischool.isp.dto.request.StatusUpdateRequest;
 import com.ischool.isp.dto.request.UserCreateRequest;
 import com.ischool.isp.dto.request.UserPasswordResetRequest;
@@ -12,6 +13,7 @@ import com.ischool.isp.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -67,6 +69,13 @@ public class UserController {
     @PutMapping("/{id}/status")
     public Result<Void> updateStatus(@PathVariable Long id, @Valid @RequestBody StatusUpdateRequest request) {
         userService.updateStatus(id, request.getStatus());
+        return Result.success();
+    }
+
+    @OpLog(operationType = "DELETE_USER", description = "删除用户")
+    @DeleteMapping("/{id}")
+    public Result<Void> deleteUser(@PathVariable Long id, @Valid @RequestBody DeleteUserRequest request) {
+        userService.deleteUser(id, request.getAdminPassword());
         return Result.success();
     }
 }

@@ -13,6 +13,7 @@ import com.ischool.isp.entity.User;
 import com.ischool.isp.mapper.StudentMapper;
 import com.ischool.isp.mapper.TeacherMapper;
 import com.ischool.isp.mapper.UserMapper;
+import com.ischool.isp.security.SecurityUtils;
 import com.ischool.isp.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -91,7 +92,7 @@ public class UserServiceImpl implements UserService {
         if ("STUDENT".equals(request.getRole())) {
             Student student = new Student();
             student.setUserId(user.getId());
-            student.setStudentNo(request.getStudentNo());
+            student.setStudentNo(request.getStudentNo() != null ? request.getStudentNo() : request.getUsername());
             student.setClassName(request.getClassName());
             student.setGrade(request.getGrade());
             student.setMajor(request.getMajor());
@@ -100,7 +101,7 @@ public class UserServiceImpl implements UserService {
         } else if ("TEACHER".equals(request.getRole())) {
             Teacher teacher = new Teacher();
             teacher.setUserId(user.getId());
-            teacher.setTeacherNo(request.getTeacherNo());
+            teacher.setTeacherNo(request.getTeacherNo() != null ? request.getTeacherNo() : request.getUsername());
             teacher.setDepartment(request.getDepartment());
             teacher.setTitle(request.getTitle());
             teacherMapper.insert(teacher);
@@ -174,6 +175,32 @@ public class UserServiceImpl implements UserService {
         }
         user.setStatus(status);
         userMapper.updateById(user);
+    }
+
+    @Override
+    @Transactional
+    public void deleteUser(Long id, String adminPassword) {
+        Long currentUserId = SecurityUtils.getCurrentUserId();
+        if (currentUserId == null) {
+            throw new BusinessException(401, "未登录");
+        }
+        User currentUser = userMapper.selectById(currentUserId);
+        if (currentUser == null || !"ADMIN".equals(currentUser.getRole())) {
+            throw new BusinessException(403, "仅管理员可删除用户");
+        }
+        if (!passwordEncoder.matches(adminPassword, currentUser.getPasswordHash())) {
+            throw new BusinessException("管理员密码错误");
+        }
+        User target = userMapper.selectById(id);
+        if (target == null) {
+            throw new BusinessException(404, "用户不存在");
+        }
+        if (currentUserId.equals(id)) {
+            throw new BusinessException("不能删除自己的账号");
+        }
+        studentMapper.delete(new LambdaQueryWrapper<Student>().eq(Student::getUserId, id));
+        teacherMapper.delete(new LambdaQueryWrapper<Teacher>().eq(Teacher::getUserId, id));
+        userMapper.deleteById(id);
     }
 
     private UserInfoResponse toUserInfo(User user) {

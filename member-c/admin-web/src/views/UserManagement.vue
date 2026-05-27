@@ -45,7 +45,7 @@
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="260" fixed="right">
+        <el-table-column label="操作" width="300" fixed="right">
           <template #default="{ row }">
             <el-button size="small" @click="showEditDialog(row)">编辑</el-button>
             <el-button size="small" @click="handleResetPwd(row.userId)">重置密码</el-button>
@@ -56,6 +56,7 @@
             >
               {{ row.status === 'ACTIVE' ? '禁用' : '启用' }}
             </el-button>
+            <el-button size="small" type="danger" @click="showDeleteDialog(row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -139,6 +140,26 @@
         <el-button type="primary" :loading="dialog.submitting" @click="handleDialogSubmit">确定</el-button>
       </template>
     </el-dialog>
+
+    <!-- 删除确认弹窗 -->
+    <el-dialog v-model="deleteDialog.visible" title="删除用户" width="420px">
+      <div style="margin-bottom: 12px">
+        <el-alert type="warning" show-icon :closable="false">
+          <template #title>
+            确认删除用户 <b>{{ deleteDialog.targetName }}</b>？此操作不可恢复。
+          </template>
+        </el-alert>
+      </div>
+      <el-form label-width="80px">
+        <el-form-item label="管理员密码">
+          <el-input v-model="deleteDialog.adminPassword" type="password" show-password placeholder="请输入管理员密码以确认" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="deleteDialog.visible = false">取消</el-button>
+        <el-button type="danger" :loading="deleteDialog.submitting" @click="handleDelete">确认删除</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -150,6 +171,7 @@ import {
   getUserList,
   createUser,
   updateUser,
+  deleteUser,
   resetPassword,
   updateUserStatus,
   type UserInfo,
@@ -179,6 +201,26 @@ const dialogRules = {
   password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
   realName: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
   role: [{ required: true, message: '请选择角色', trigger: 'change' }],
+  studentNo: [
+    { required: true, message: '请输入学号', trigger: 'blur' },
+    {
+      validator: (_rule: any, value: string, callback: Function) => {
+        if (dialog.form.role === 'STUDENT' && !value) callback(new Error('学生学号必填'))
+        else callback()
+      },
+      trigger: 'blur',
+    },
+  ],
+  teacherNo: [
+    { required: true, message: '请输入工号', trigger: 'blur' },
+    {
+      validator: (_rule: any, value: string, callback: Function) => {
+        if (dialog.form.role === 'TEACHER' && !value) callback(new Error('教师工号必填'))
+        else callback()
+      },
+      trigger: 'blur',
+    },
+  ],
 }
 
 async function loadData() {
@@ -280,6 +322,39 @@ async function handleResetPwd(id: number) {
     ElMessage.success('密码重置成功')
   } catch {
     // user cancelled
+  }
+}
+
+const deleteDialog = reactive({
+  visible: false,
+  targetId: null as number | null,
+  targetName: '',
+  adminPassword: '',
+  submitting: false,
+})
+
+function showDeleteDialog(row: UserInfo) {
+  deleteDialog.targetId = row.userId
+  deleteDialog.targetName = row.realName || row.username
+  deleteDialog.adminPassword = ''
+  deleteDialog.visible = true
+}
+
+async function handleDelete() {
+  if (!deleteDialog.adminPassword) {
+    ElMessage.error('请输入管理员密码')
+    return
+  }
+  const id = deleteDialog.targetId
+  if (id == null) return
+  deleteDialog.submitting = true
+  try {
+    await deleteUser(id, deleteDialog.adminPassword)
+    ElMessage.success('删除成功')
+    deleteDialog.visible = false
+    loadData()
+  } finally {
+    deleteDialog.submitting = false
   }
 }
 
