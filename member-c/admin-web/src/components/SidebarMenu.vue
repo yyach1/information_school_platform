@@ -24,6 +24,10 @@
         <el-icon><Bell /></el-icon>
         <span>我的通知</span>
       </el-menu-item>
+      <el-menu-item index="/student/profile">
+        <el-icon><UserFilled /></el-icon>
+        <span>个人中心</span>
+      </el-menu-item>
     </template>
 
     <template v-if="hasRole(['TEACHER', 'ADMIN'])">

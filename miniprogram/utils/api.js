@@ -34,6 +34,16 @@ module.exports = {
   post: (url, data) => request('POST', url, data),
   put: (url, data) => request('PUT', url, data),
 
+  // === 修改密码 ===
+  changePassword: (oldPassword, newPassword) => {
+    return request('PUT', '/auth/password', { oldPassword, newPassword });
+  },
+
+  // === 更新头像 ===
+  updateAvatar: (avatarUrl) => {
+    return request('PUT', '/auth/avatar', { avatarUrl: avatarUrl });
+  },
+
   // === 登录 ===
   login: (username, password) => {
     return new Promise((resolve, reject) => {
@@ -81,12 +91,13 @@ module.exports = {
     request('GET', `/student/certificates/${id}/download`),
 
   // === 文件上传（成员D提供）===
-  uploadFile: (filePath, relatedType, relatedId) => {
+  uploadFile: (filePath, relatedType, relatedId, originalName) => {
     return new Promise((resolve, reject) => {
       const token = wx.getStorageSync('token');
       const formData = {};
       if (relatedType) formData.relatedType = relatedType;
       if (relatedId) formData.relatedId = String(relatedId);
+      if (originalName) formData.originalName = originalName;
 
       wx.uploadFile({
         url: BASE_URL + '/files/upload',

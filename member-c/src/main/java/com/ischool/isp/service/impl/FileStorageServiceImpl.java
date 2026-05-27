@@ -39,7 +39,7 @@ public class FileStorageServiceImpl implements FileStorageService {
 
     @Override
     @Transactional
-    public FileRecordResponse upload(MultipartFile file, Long ownerId, String relatedType, Long relatedId) {
+    public FileRecordResponse upload(MultipartFile file, Long ownerId, String relatedType, Long relatedId, String originalName) {
         if (file == null || file.isEmpty()) {
             throw new BusinessException("上传文件不能为空");
         }
@@ -57,8 +57,10 @@ public class FileStorageServiceImpl implements FileStorageService {
             throw new BusinessException(403, "学生只能上传自己的文件");
         }
 
-        String originalName = StringUtils.cleanPath(file.getOriginalFilename() == null ? "file" : file.getOriginalFilename());
-        String extension = getExtension(originalName);
+        String rawName = (StringUtils.hasText(originalName)) ? originalName
+                : (file.getOriginalFilename() != null ? file.getOriginalFilename() : "file");
+        String cleanName = StringUtils.cleanPath(rawName);
+        String extension = getExtension(cleanName);
         checkExtension(extension);
 
         String dateDir = LocalDate.now().toString().replace("-", "");
@@ -82,7 +84,7 @@ public class FileStorageServiceImpl implements FileStorageService {
         record.setOwnerId(finalOwnerId);
         record.setRelatedType(StringUtils.hasText(relatedType) ? relatedType.toUpperCase(Locale.ROOT) : "OTHER");
         record.setRelatedId(relatedId);
-        record.setOriginalName(originalName);
+        record.setOriginalName(cleanName);
         record.setStoredName(dateDir + "/" + storedName);
         record.setFileUrl("/api/files/" + 0); // 插入后回填真实 id
         record.setContentType(StringUtils.hasText(file.getContentType()) ? file.getContentType() : "application/octet-stream");

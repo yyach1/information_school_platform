@@ -31,7 +31,7 @@
           {{item.status === 'APPROVED' ? '已通过' : item.status === 'RETURNED' ? '已退回' : '待审核'}}
         </text>
       </view>
-      <text class="material-file">{{item.fileUrl}}</text>
+      <text class="material-file">{{item.fileName}}</text>
     </view>
   </view>
 

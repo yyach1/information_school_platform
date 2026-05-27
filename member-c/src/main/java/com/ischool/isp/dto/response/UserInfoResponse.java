@@ -21,6 +21,8 @@ public class UserInfoResponse {
     private String major;
     private String politicalStatus;
 
+    private String avatarUrl;
+
     private String teacherNo;
     private String department;
     private String title;

@@ -91,6 +91,12 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/views/StudentProgressPage.vue'),
         meta: { roles: ['STUDENT'] },
       },
+      {
+        path: 'student/profile',
+        name: 'StudentProfile',
+        component: () => import('@/views/StudentProfile.vue'),
+        meta: { roles: ['STUDENT'] },
+      },
     ],
   },
 ]

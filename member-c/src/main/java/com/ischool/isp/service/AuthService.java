@@ -10,5 +10,9 @@ public interface AuthService {
 
     UserInfoResponse getCurrentUser();
 
+    void updateAvatar(String avatarUrl);
+
+    void changePassword(String oldPassword, String newPassword);
+
     void logout();
 }

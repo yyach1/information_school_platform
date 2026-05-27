@@ -27,6 +27,7 @@ Page({
 
   loadUserInfo() {
     var userInfo = wx.getStorageSync('userInfo');
+    var avatarUrl = userInfo.avatarUrl || wx.getStorageSync('avatarUrl') || '';
     if (userInfo) {
       var roleHint = '';
       if (userInfo.role === 'ADMIN') {
@@ -34,6 +35,7 @@ Page({
       }
       this.setData({
         userInfo: userInfo,
+        avatarUrl: avatarUrl,
         greeting: getGreeting(),
         roleHint: roleHint,
         hasRoleIssue: userInfo.role === 'ADMIN'
@@ -65,6 +67,10 @@ Page({
       wx.hideLoading();
       wx.showToast({ title: err.message || '进入失败', icon: 'none' });
     });
+  },
+
+  goMine() {
+    wx.navigateTo({ url: '/pages/mine/mine' });
   },
 
   goApplyProcess() {

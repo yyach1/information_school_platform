@@ -26,6 +26,7 @@
   background: rgba(255,255,255,0.25);
 }
 
+.header-arrow { font-size: 48rpx; color: rgba(255,255,255,0.6); position: absolute; right: 30rpx; top: 50%; transform: translateY(-50%); }
 .user-name { font-size: 38rpx; color: #fff; font-weight: 700; display: block; }
 .user-class { font-size: 26rpx; color: rgba(255,255,255,0.85); margin-top: 4rpx; }
 

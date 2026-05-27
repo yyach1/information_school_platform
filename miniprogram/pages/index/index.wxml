@@ -1,13 +1,14 @@
 <view class="page">
   <!-- 头部 -->
-  <view class="header">
-    <view class="user-info" bindtap="goMine">
-      <image class="avatar" src="{{userInfo.avatar || '/images/default-avatar.png'}}" mode="aspectFill"></image>
+  <view class="header" bindtap="goMine">
+    <view class="user-info">
+      <image class="avatar" src="{{avatarUrl || '/images/default-avatar.png'}}" mode="aspectFill"></image>
       <view class="user-text">
         <text class="user-name">{{greeting}}，{{userInfo.realName || '同学'}}</text>
         <text class="user-class" wx:if="{{userInfo.className}}">{{userInfo.className}} · {{userInfo.studentNo || userInfo.role}}</text>
       </view>
     </view>
+    <text class="header-arrow">›</text>
   </view>
 
   <!-- 管理员提示 -->

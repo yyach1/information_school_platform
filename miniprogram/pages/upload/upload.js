@@ -12,7 +12,6 @@ Page({
   onLoad(options) {
     var processId = options.processId;
     if (!processId) {
-      // 如果没有指定流程，引导用户先去党团进度选择
       wx.showModal({
         title: '提示',
         content: '请先在"党团进度"中选择一个流程节点',
@@ -46,13 +45,31 @@ Page({
     });
   },
 
-  onFileChange(e) {},
-  onFileRemove(e) {},
+  onFileChange(e) {
+    var files = Object.assign({}, this.data.files);
+    files[e.detail.materialType] = {
+      name: e.detail.fileName || e.detail.name,
+      path: e.detail.filePath || e.detail.path,
+      progress: 0
+    };
+    this.setData({ files: files });
+  },
 
   onUploadDone(e) {
-    this.setData({
-      files: this.data.files
-    });
+    var files = Object.assign({}, this.data.files);
+    files[e.detail.materialType] = {
+      name: e.detail.fileName,
+      url: e.detail.fileUrl,
+      progress: 100
+    };
+    this.setData({ files: files });
+    this.checkAllDone();
+  },
+
+  onFileRemove(e) {
+    var files = Object.assign({}, this.data.files);
+    delete files[e.detail.materialType];
+    this.setData({ files: files });
     this.checkAllDone();
   },
 

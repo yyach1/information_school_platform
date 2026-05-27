@@ -51,7 +51,7 @@ Component({
             path: file.path
           });
 
-          api.uploadFile(file.path, 'MATERIAL').then(function(data) {
+          api.uploadFile(file.path, 'MATERIAL', null, file.name).then(function(data) {
             files[materialType].url = data.fileUrl;
             files[materialType].progress = 100;
             that.setData({ files: files });

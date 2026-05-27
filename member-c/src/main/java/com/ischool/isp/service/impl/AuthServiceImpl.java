@@ -72,6 +72,33 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    public void changePassword(String oldPassword, String newPassword) {
+        Long userId = SecurityUtils.getCurrentUserId();
+        if (userId == null) {
+            throw new BusinessException(401, "未登录");
+        }
+        User user = userMapper.selectById(userId);
+        if (user == null) {
+            throw new BusinessException(404, "用户不存在");
+        }
+        if (!passwordEncoder.matches(oldPassword, user.getPasswordHash())) {
+            throw new BusinessException("旧密码错误");
+        }
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        userMapper.updateById(user);
+    }
+
+    @Override
+    public void updateAvatar(String avatarUrl) {
+        Long userId = SecurityUtils.getCurrentUserId();
+        if (userId == null) throw new BusinessException(401, "未登录");
+        User user = userMapper.selectById(userId);
+        if (user == null) throw new BusinessException(404, "用户不存在");
+        user.setAvatarUrl(avatarUrl);
+        userMapper.updateById(user);
+    }
+
+    @Override
     public void logout() {
         // Stateless JWT — client discards token. No server-side invalidation needed.
     }
@@ -84,7 +111,8 @@ public class AuthServiceImpl implements AuthService {
                 .role(user.getRole())
                 .phone(user.getPhone())
                 .email(user.getEmail())
-                .status(user.getStatus());
+                .status(user.getStatus())
+                .avatarUrl(user.getAvatarUrl());
 
         if ("STUDENT".equals(user.getRole())) {
             Student student = studentMapper.selectOne(

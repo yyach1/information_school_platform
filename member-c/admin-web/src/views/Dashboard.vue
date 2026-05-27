@@ -23,6 +23,12 @@
             <div class="stat-label">我的通知</div>
           </el-card>
         </el-col>
+        <el-col :span="8" style="margin-top: 20px">
+          <el-card shadow="hover" class="stat-card" @click="$router.push('/student/profile')">
+            <el-icon :size="36" color="#909399"><UserFilled /></el-icon>
+            <div class="stat-label">个人中心</div>
+          </el-card>
+        </el-col>
       </template>
 
       <template v-if="hasRole(['TEACHER', 'ADMIN'])">

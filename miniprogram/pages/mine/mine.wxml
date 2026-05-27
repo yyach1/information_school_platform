@@ -1,23 +1,43 @@
 <view class="page">
   <!-- 头部个人信息 -->
   <view class="header">
-    <image class="avatar" src="{{userInfo.avatar || '/images/default-avatar.png'}}" mode="aspectFill"></image>
+    <view class="avatar-wrap" bindtap="onChooseAvatar">
+      <image class="avatar-img" wx:if="{{avatarUrl}}" src="{{avatarUrl}}" mode="aspectFill"></image>
+      <image class="avatar-img" wx:else src="/images/default-avatar.png" mode="aspectFill"></image>
+      <view class="avatar-camera">📷</view>
+    </view>
     <view class="user-text">
       <text class="user-name">{{userInfo.realName || '未登录'}}</text>
-      <text class="user-detail" wx:if="{{userInfo.className}}">{{userInfo.className}}</text>
-      <text class="user-detail" wx:elif="{{userInfo.role}}">{{roleLabel}}</text>
+      <text class="user-detail" wx:if="{{userInfo.className}}">{{userInfo.className}} · {{userInfo.studentNo || ''}}</text>
+      <text class="user-detail" wx:else>{{roleLabel}}</text>
     </view>
   </view>
 
   <!-- 信息卡片 -->
   <view class="card">
     <view class="info-row">
-      <text class="info-label">学号/工号</text>
-      <text class="info-value">{{userInfo.studentNo || userInfo.teacherNo || '-'}}</text>
+      <text class="info-label">用户名</text>
+      <text class="info-value">{{userInfo.username || '-'}}</text>
     </view>
-    <view class="info-row">
-      <text class="info-label">角色</text>
-      <text class="info-value">{{roleLabel}}</text>
+    <view class="info-row" wx:if="{{userInfo.studentNo}}">
+      <text class="info-label">学号</text>
+      <text class="info-value">{{userInfo.studentNo}}</text>
+    </view>
+    <view class="info-row" wx:if="{{userInfo.className}}">
+      <text class="info-label">班级</text>
+      <text class="info-value">{{userInfo.className}}</text>
+    </view>
+    <view class="info-row" wx:if="{{userInfo.grade}}">
+      <text class="info-label">年级</text>
+      <text class="info-value">{{userInfo.grade}}</text>
+    </view>
+    <view class="info-row" wx:if="{{userInfo.major}}">
+      <text class="info-label">专业</text>
+      <text class="info-value">{{userInfo.major}}</text>
+    </view>
+    <view class="info-row" wx:if="{{userInfo.politicalStatus}}">
+      <text class="info-label">政治面貌</text>
+      <text class="info-value">{{userInfo.politicalStatus}}</text>
     </view>
     <view class="info-row" wx:if="{{userInfo.phone}}">
       <text class="info-label">手机号</text>
@@ -29,10 +49,32 @@
     </view>
   </view>
 
+  <!-- 修改密码 -->
+  <view class="card">
+    <view class="action-row" bindtap="openPwdDialog">
+      <text>修改密码</text>
+      <text class="action-arrow">›</text>
+    </view>
+  </view>
+
   <!-- 退出登录 -->
   <view class="card">
     <view class="logout-btn" bindtap="handleLogout">
       <text class="logout-text">退出登录</text>
+    </view>
+  </view>
+
+  <!-- 修改密码弹窗 -->
+  <view class="dialog-mask" wx:if="{{showPwdDialog}}" bindtap="closePwdDialog">
+    <view class="dialog-card" catchtap>
+      <view class="dialog-title">修改密码</view>
+      <input class="dialog-input" placeholder="旧密码" password value="{{oldPassword}}" bindinput="onOldPwdInput" />
+      <input class="dialog-input" placeholder="新密码（至少6位）" password value="{{newPassword}}" bindinput="onNewPwdInput" />
+      <input class="dialog-input" placeholder="确认新密码" password value="{{confirmPassword}}" bindinput="onConfirmPwdInput" />
+      <view class="dialog-btns">
+        <view class="dialog-btn dialog-cancel" bindtap="closePwdDialog">取消</view>
+        <view class="dialog-btn dialog-confirm" bindtap="submitPassword">确定</view>
+      </view>
     </view>
   </view>
 </view>

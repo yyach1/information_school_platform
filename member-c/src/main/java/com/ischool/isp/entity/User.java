@@ -28,4 +28,6 @@ public class User extends BaseEntity {
     private String email;
 
     private String status;
+
+    private String avatarUrl;
 }

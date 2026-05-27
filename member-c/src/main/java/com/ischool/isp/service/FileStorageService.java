@@ -9,7 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface FileStorageService {
 
-    FileRecordResponse upload(MultipartFile file, Long ownerId, String relatedType, Long relatedId);
+    FileRecordResponse upload(MultipartFile file, Long ownerId, String relatedType, Long relatedId, String originalName);
 
     IPage<FileRecordResponse> list(FileQueryRequest request);
 

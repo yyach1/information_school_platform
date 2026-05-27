@@ -54,7 +54,7 @@ Page({
 
         that.setData({ attachmentFile: { name: file.name, path: file.path, progress: 0 } });
 
-        api.uploadFile(file.path, 'CERTIFICATE').then(function(data) {
+        api.uploadFile(file.path, 'CERTIFICATE', null, file.name).then(function(data) {
           that.setData({
             attachmentFile: { name: file.name, url: data.fileUrl, progress: 100 }
           });

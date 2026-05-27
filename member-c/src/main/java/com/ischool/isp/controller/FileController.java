@@ -37,8 +37,9 @@ public class FileController {
             @RequestParam("file") MultipartFile file,
             @RequestParam(required = false) Long ownerId,
             @RequestParam(required = false) String relatedType,
-            @RequestParam(required = false) Long relatedId) {
-        return Result.success(fileStorageService.upload(file, ownerId, relatedType, relatedId));
+            @RequestParam(required = false) Long relatedId,
+            @RequestParam(required = false) String originalName) {
+        return Result.success(fileStorageService.upload(file, ownerId, relatedType, relatedId, originalName));
     }
 
     @GetMapping

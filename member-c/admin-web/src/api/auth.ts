@@ -13,6 +13,7 @@ export interface UserInfo {
   phone: string
   email: string
   status: string
+  avatarUrl?: string
   studentNo?: string
   className?: string
   grade?: string
